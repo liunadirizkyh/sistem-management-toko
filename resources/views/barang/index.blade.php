@@ -24,22 +24,26 @@
                     @endif
 
                     <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white">
+                        <table class="min-w-full bg-white table-fixed">
                             <thead class="bg-gray-200">
                                 <tr>
-                                    <th class="py-2 px-4 border-b">Nama Barang</th>
-                                    <th class="py-2 px-4 border-b">Satuan</th>
-                                    <th class="py-2 px-4 border-b">Stok</th>
-                                    <th class="py-2 px-4 border-b">Harga Jual</th>
-                                    <th class="py-2 px-4 border-b">Aksi</th>
+                                    <th class="w-1/6 py-2 px-4 border-b">Kode Barang</th>
+                                    <th class="w-1/3 py-2 px-4 border-b">Nama Barang</th>
+                                    <th class="w-1/12 py-2 px-4 border-b">Satuan</th>
+                                    <th class="w-1/12 py-2 px-4 border-b">Stok</th>
+                                    <th class="w-1/6 py-2 px-4 border-b">Harga Beli</th>
+                                    <th class="w-1/6 py-2 px-4 border-b">Harga Jual</th>
+                                    <th class="w-1/6 py-2 px-4 border-b">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($barangs as $barang)
                                     <tr class="hover:bg-gray-100">
+                                        <td class="py-2 px-4 border-b">{{ $barang->kode_barang ?? '-' }}</td>
                                         <td class="py-2 px-4 border-b">{{ $barang->nama_barang }}</td>
                                         <td class="py-2 px-4 border-b text-center">{{ $barang->satuan }}</td>
                                         <td class="py-2 px-4 border-b text-center">{{ $barang->stok }}</td>
+                                        <td class="py-2 px-4 border-b text-right">Rp {{ number_format($barang->harga_beli, 0, ',', '.') }}</td>
                                         <td class="py-2 px-4 border-b text-right">Rp {{ number_format($barang->harga_jual, 0, ',', '.') }}</td>
                                         <td class="py-2 px-4 border-b text-center">
                                             <a href="{{ route('barang.edit', $barang->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-2">Edit</a>
@@ -52,15 +56,13 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center py-4">Tidak ada data barang.</td>
+                                        <td colspan="7" class="text-center py-4">Tidak ada data barang.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-                    <div class="mt-4">
-                        {{ $barangs->links() }}
-                    </div>
+
                 </div>
             </div>
         </div>

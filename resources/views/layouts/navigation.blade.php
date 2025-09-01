@@ -15,6 +15,18 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @role('admin')
+                        <x-nav-link :href="route('barang.index')" :active="request()->routeIs('barang.*')">
+                            {{ __('Manajemen Barang') }}
+                        </x-nav-link>
+                    @endrole
+
+                    @role('kasir')
+                        <x-nav-link :href="route('transaksi.create')" :active="request()->routeIs('transaksi.*')">
+                            {{ __('Transaksi') }}
+                        </x-nav-link>
+                    @endrole
                 </div>
             </div>
 
