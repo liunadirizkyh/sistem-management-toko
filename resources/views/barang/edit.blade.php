@@ -1,9 +1,17 @@
 <x-app-layout>
+    <!-- PERUBAHAN DI BAGIAN HEADER INI -->
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Data Barang') }}
+            <a href="{{ route('barang.index') }}" class="hover:underline">
+                {{ __('Manajemen Barang') }}
+            </a>
+            <span class="mx-2 font-sans">&gt;</span>
+            <span>
+                {{ __('Edit Data Barang') }}
+            </span>
         </h2>
     </x-slot>
+    <!-- BATAS AKHIR PERUBAHAN HEADER -->
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -19,7 +27,7 @@
                                 <input type="text" name="nama_barang" id="nama_barang" value="{{ old('nama_barang', $barang->nama_barang) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
                                 @error('nama_barang')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
-                             <div>
+                            <div>
                                 <label for="kode_barang" class="block font-medium text-sm text-gray-700">Kode Barang (Opsional)</label>
                                 <input type="text" name="kode_barang" id="kode_barang" value="{{ old('kode_barang', $barang->kode_barang) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300">
                                 @error('kode_barang')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
@@ -34,7 +42,7 @@
                                 <input type="number" name="stok" id="stok" value="{{ old('stok', $barang->stok) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
                                 @error('stok')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
-                             <div>
+                            <div>
                                 <label for="harga_beli" class="block font-medium text-sm text-gray-700">Harga Beli (Modal)</label>
                                 <input type="number" name="harga_beli" id="harga_beli" value="{{ old('harga_beli', $barang->harga_beli) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
                                 @error('harga_beli')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror

@@ -6,7 +6,7 @@
             </a>
             <span class="mx-2 font-sans">&gt;</span>
             <span>
-                Transaksi Baru
+                Edit Transaksi
             </span>
         </h2>
     </x-slot>
@@ -15,12 +15,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
-                    {{-- Pesan error dan sukses tidak berubah --}}
-                    @if(session('success'))
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+                    {{-- Pesan error tidak berubah --}}
                     @if ($errors->any())
                         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
                             <ul>
@@ -31,12 +26,13 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('transaksi.store') }}" method="POST" id="transaction-form">
+                    <form action="{{ route('transaksi.update', $transaksi) }}" method="POST" id="transaction-form">
                         @csrf
+                        @method('PUT')
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="md:col-span-2">
                                 <div class="bg-gray-100 p-4 rounded-lg">
-                                    <label for="barang-search" class="block font-medium text-sm text-gray-700 mb-2">Cari & Pilih Barang</label>
+                                    <label for="barang-search" class="block font-medium text-sm text-gray-700 mb-2">Tambah Barang ke Keranjang</label>
                                     <select id="barang-search" class="block w-full rounded-md shadow-sm border-gray-300">
                                         <option value="">-- Pilih Barang --</option>
                                         @foreach($barangs as $barang)
@@ -63,6 +59,21 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
+                                                @foreach($transaksi->details as $item)
+                                                <tr data-id="{{ $item->barang_id }}">
+                                                    <td class="py-2 px-4 border-b align-middle">{{ $item->barang->nama_barang }}</td>
+                                                    <td class="py-2 px-4 border-b align-middle">
+                                                        <input type="number" class="jumlah-input w-full rounded-md border-gray-300" value="{{ $item->jumlah }}" min="1">
+                                                    </td>
+                                                    <td class="py-2 px-4 border-b align-middle">
+                                                        <input type="number" class="harga-input w-full rounded-md border-gray-300" value="{{ $item->harga_satuan }}" min="0">
+                                                    </td>
+                                                    <td class="py-2 px-4 border-b font-bold subtotal text-right align-middle">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                                                    <td class="py-2 px-4 border-b text-center align-middle">
+                                                        <button type="button" class="remove-item-btn text-red-500 hover:text-red-700">X</button>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
                                             </tbody>
                                         </table>
                                     </div>
@@ -74,10 +85,10 @@
                                 <div class="bg-blue-100 p-4 rounded-lg shadow-md">
                                     <h3 class="text-2xl font-bold mb-4">Total Belanja</h3>
                                     <div class="text-4xl font-extrabold text-blue-800 mb-6" id="grand-total">Rp 0</div>
-                                    <input type="hidden" name="total_harga" id="total_harga_input" value="0">
+                                    <input type="hidden" name="total_harga" id="total_harga_input" value="{{ $transaksi->total_harga }}">
                                     <div>
                                         <label for="uang_bayar" class="block font-medium text-sm text-gray-700">Uang Bayar</label>
-                                        <input type="number" name="uang_bayar" id="uang_bayar" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
+                                        <input type="number" name="uang_bayar" id="uang_bayar" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ $transaksi->uang_bayar }}" required>
                                     </div>
                                     <div class="mt-4">
                                         <label class="block font-medium text-sm text-gray-700">Uang Kembali</label>
@@ -85,7 +96,7 @@
                                     </div>
                                     <div class="mt-6">
                                         <button type="submit" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-4 rounded text-lg">
-                                            Simpan Transaksi
+                                            Update Transaksi
                                         </button>
                                     </div>
                                 </div>
@@ -98,8 +109,8 @@
     </div>
     
     <script>
+        // Sisa script tidak berubah
         document.addEventListener('DOMContentLoaded', function () {
-            // ... (variabel JS tidak berubah) ...
             const barangSearch = document.getElementById('barang-search');
             const cartTableBody = document.querySelector('#cart-table tbody');
             const grandTotalEl = document.getElementById('grand-total');
@@ -108,6 +119,11 @@
             const uangKembaliEl = document.getElementById('uang-kembali');
             const transactionForm = document.getElementById('transaction-form');
             let cartItems = {};
+
+            document.querySelectorAll('#cart-table tbody tr').forEach(row => {
+                const id = row.dataset.id;
+                cartItems[id] = { row: row };
+            });
 
             function formatRupiah(number) {
                 return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
@@ -135,44 +151,28 @@
                 }
                 const newRow = document.createElement('tr');
                 newRow.dataset.id = id;
-                // PERBAIKAN: Menambahkan text-right pada subtotal
                 newRow.innerHTML = `
-                    <td class="py-2 px-4 border-b align-middle">${nama}</td>
-                    <td class="py-2 px-4 border-b align-middle">
-                        <input type="number" class="jumlah-input w-full rounded-md border-gray-300" value="1" min="1" max="${stok}" data-stok="${stok}">
-                    </td>
-                    <td class="py-2 px-4 border-b align-middle">
-                        <input type="number" class="harga-input w-full rounded-md border-gray-300" value="${harga}" min="0">
-                    </td>
-                    <td class="py-2 px-4 border-b font-bold subtotal text-right align-middle">${formatRupiah(harga)}</td>
-                    <td class="py-2 px-4 border-b text-center align-middle">
-                        <button type="button" class="remove-item-btn text-red-500 hover:text-red-700">X</button>
-                    </td>
+                    <td class="py-2 px-4 border-b">${nama}</td>
+                    <td class="py-2 px-4 border-b"><input type="number" class="jumlah-input w-full rounded-md border-gray-300" value="1" min="1" max="${stok}"></td>
+                    <td class="py-2 px-4 border-b"><input type="number" class="harga-input w-full rounded-md border-gray-300" value="${harga}" min="0"></td>
+                    <td class="py-2 px-4 border-b font-bold subtotal">${formatRupiah(harga)}</td>
+                    <td class="py-2 px-4 border-b text-center"><button type="button" class="remove-item-btn text-red-500 hover:text-red-700">X</button></td>
                 `;
                 cartTableBody.appendChild(newRow);
                 cartItems[id] = { row: newRow };
                 updateTotals();
             }
 
-            // ... (sisa kode JS tidak berubah) ...
-            cartTableBody.addEventListener('input', function (e) {
+            cartTableBody.addEventListener('input', e => {
                 if (e.target.classList.contains('jumlah-input') || e.target.classList.contains('harga-input')) {
-                    const row = e.target.closest('tr');
-                    const jumlah = parseInt(row.querySelector('.jumlah-input').value);
-                    const stok = parseInt(row.querySelector('.jumlah-input').dataset.stok);
-                    if(jumlah > stok) {
-                        alert('Jumlah pembelian melebihi stok yang tersedia (' + stok + ')');
-                        row.querySelector('.jumlah-input').value = stok;
-                    }
-                    updateRowSubtotal(row);
+                    updateRowSubtotal(e.target.closest('tr'));
                 }
             });
 
-            cartTableBody.addEventListener('click', function (e) {
+            cartTableBody.addEventListener('click', e => {
                 if (e.target.classList.contains('remove-item-btn')) {
                     const row = e.target.closest('tr');
-                    const id = row.dataset.id;
-                    delete cartItems[id];
+                    delete cartItems[row.dataset.id];
                     row.remove();
                     updateTotals();
                 }
@@ -181,14 +181,13 @@
             function updateRowSubtotal(row) {
                 const jumlah = parseFloat(row.querySelector('.jumlah-input').value) || 0;
                 const harga = parseFloat(row.querySelector('.harga-input').value) || 0;
-                const subtotal = jumlah * harga;
-                row.querySelector('.subtotal').textContent = formatRupiah(subtotal);
+                row.querySelector('.subtotal').textContent = formatRupiah(jumlah * harga);
                 updateTotals();
             }
 
             function updateTotals() {
                 let grandTotal = 0;
-                document.querySelectorAll('#cart-table tbody tr').forEach(row => {
+                cartTableBody.querySelectorAll('tr').forEach(row => {
                     const jumlah = parseFloat(row.querySelector('.jumlah-input').value) || 0;
                     const harga = parseFloat(row.querySelector('.harga-input').value) || 0;
                     grandTotal += jumlah * harga;
@@ -210,16 +209,13 @@
             transactionForm.addEventListener('submit', function (e) {
                 document.querySelectorAll('input[name^="items["]').forEach(el => el.remove());
                 let index = 0;
-                document.querySelectorAll('#cart-table tbody tr').forEach(row => {
+                cartTableBody.querySelectorAll('tr').forEach(row => {
                     const barangId = row.dataset.id;
                     const jumlah = row.querySelector('.jumlah-input').value;
                     const harga = row.querySelector('.harga-input').value;
-                    const hiddenInputId = createHiddenInput(`items[${index}][barang_id]`, barangId);
-                    const hiddenInputJumlah = createHiddenInput(`items[${index}][jumlah]`, jumlah);
-                    const hiddenInputHarga = createHiddenInput(`items[${index}][harga_saat_transaksi]`, harga);
-                    transactionForm.appendChild(hiddenInputId);
-                    transactionForm.appendChild(hiddenInputJumlah);
-                    transactionForm.appendChild(hiddenInputHarga);
+                    transactionForm.appendChild(createHiddenInput(`items[${index}][barang_id]`, barangId));
+                    transactionForm.appendChild(createHiddenInput(`items[${index}][jumlah]`, jumlah));
+                    transactionForm.appendChild(createHiddenInput(`items[${index}][harga_saat_transaksi]`, harga));
                     index++;
                 });
             });
@@ -231,6 +227,7 @@
                 input.value = value;
                 return input;
             }
+            updateTotals();
         });
     </script>
 </x-app-layout>

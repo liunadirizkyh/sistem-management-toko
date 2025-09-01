@@ -10,7 +10,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     
-                    <div class="flex justify-between mb-4">
+                    <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-bold">Daftar Barang</h3>
                         <a href="{{ route('barang.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                             + Tambah Barang
@@ -27,31 +27,34 @@
                         <table class="min-w-full bg-white table-fixed">
                             <thead class="bg-gray-200">
                                 <tr>
-                                    <th class="w-1/6 py-2 px-4 border-b">Kode Barang</th>
-                                    <th class="w-1/3 py-2 px-4 border-b">Nama Barang</th>
-                                    <th class="w-1/12 py-2 px-4 border-b">Satuan</th>
-                                    <th class="w-1/12 py-2 px-4 border-b">Stok</th>
-                                    <th class="w-1/6 py-2 px-4 border-b">Harga Beli</th>
-                                    <th class="w-1/6 py-2 px-4 border-b">Harga Jual</th>
-                                    <th class="w-1/6 py-2 px-4 border-b">Aksi</th>
+                                    <th class="w-1/5 py-2 px-4 border-b text-left align-middle">Kode Barang</th>
+                                    <th class="w-1/5 py-2 px-4 border-b text-left align-middle">Nama Barang</th>
+                                    <th class="w-1/12 py-2 px-4 border-b text-center align-middle">Satuan</th>
+                                    <th class="w-1/12 py-2 px-4 border-b text-center align-middle">Stok</th>
+                                    <th class="w-1/6 py-2 px-4 border-b text-right align-middle">Harga Beli</th>
+                                    <th class="w-1/6 py-2 px-4 border-b text-right align-middle">Harga Jual</th>
+                                    <th class="w-1/5 py-2 px-4 border-b text-center align-middle">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($barangs as $barang)
                                     <tr class="hover:bg-gray-100">
-                                        <td class="py-2 px-4 border-b">{{ $barang->kode_barang ?? '-' }}</td>
-                                        <td class="py-2 px-4 border-b">{{ $barang->nama_barang }}</td>
-                                        <td class="py-2 px-4 border-b text-center">{{ $barang->satuan }}</td>
-                                        <td class="py-2 px-4 border-b text-center">{{ $barang->stok }}</td>
-                                        <td class="py-2 px-4 border-b text-right">Rp {{ number_format($barang->harga_beli, 0, ',', '.') }}</td>
-                                        <td class="py-2 px-4 border-b text-right">Rp {{ number_format($barang->harga_jual, 0, ',', '.') }}</td>
-                                        <td class="py-2 px-4 border-b text-center">
-                                            <a href="{{ route('barang.edit', $barang->id) }}" class="text-yellow-600 hover:text-yellow-900 mr-2">Edit</a>
-                                            <form action="{{ route('barang.destroy', $barang->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus barang ini?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
-                                            </form>
+                                        <td class="py-2 px-4 border-b align-middle">{{ $barang->kode_barang ?? '-' }}</td>
+                                        <td class="py-2 px-4 border-b align-middle">{{ $barang->nama_barang }}</td>
+                                        <td class="py-2 px-4 border-b text-center align-middle">{{ $barang->satuan }}</td>
+                                        <td class="py-2 px-4 border-b text-center align-middle">{{ $barang->stok }}</td>
+                                        <td class="py-2 px-4 border-b text-right align-middle">Rp {{ number_format($barang->harga_beli, 0, ',', '.') }}</td>
+                                        <td class="py-2 px-4 border-b text-right align-middle">Rp {{ number_format($barang->harga_jual, 0, ',', '.') }}</td>
+                                        
+                                        <td class="py-2 px-4 border-b align-middle">
+                                            <div class="flex items-center justify-center space-x-3">
+                                                <a href="{{ route('barang.edit', $barang->id) }}" class="text-yellow-600 hover:text-yellow-900 font-semibold">Edit</a>
+                                                <form action="{{ route('barang.destroy', $barang->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus barang ini?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900 font-semibold">Hapus</button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -62,7 +65,6 @@
                             </tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
         </div>
