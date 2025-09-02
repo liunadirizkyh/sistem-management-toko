@@ -122,32 +122,49 @@ class TransaksiController extends Controller
      */
     public function update(Request $request, Transaksi $transaksi)
     {
+        // 1. Lengkapi validasi agar sama seperti method store
         $request->validate([
             'items' => 'required|array|min:1',
-            // validasi lainnya...
+            'items.*.barang_id' => 'required|exists:barangs,id',
+            'items.*.jumlah' => 'required|integer|min:1',
+            'items.*.harga_saat_transaksi' => 'required|numeric|min:0',
+            'total_harga' => 'required|numeric|min:0',
+            'uang_bayar' => 'required|numeric|gte:total_harga',
         ]);
 
         try {
             DB::transaction(function () use ($request, $transaksi) {
-                // 1. Kembalikan stok lama
+                // Kembalikan stok lama
                 foreach ($transaksi->details as $detail) {
                     Barang::find($detail->barang_id)->increment('stok', $detail->jumlah);
                 }
-                // 2. Hapus detail lama
+
+                // Hapus detail lama
                 $transaksi->details()->delete();
-                // 3. Update data utama
+
+                // Update data utama transaksi
                 $transaksi->update([
                     'total_harga' => $request->total_harga,
                     'uang_bayar' => $request->uang_bayar,
                     'uang_kembali' => $request->uang_bayar - $request->total_harga,
                 ]);
-                // 4. Buat detail baru & kurangi stok baru
+
+                // Buat detail baru & kurangi stok baru
                 foreach ($request->items as $item) {
                     $barang = Barang::find($item['barang_id']);
                     if ($barang->stok < $item['jumlah']) {
                         throw new \Exception('Stok untuk barang ' . $barang->nama_barang . ' tidak mencukupi.');
                     }
-                    DetailTransaksi::create(['transaksi_id' => $transaksi->id, /* ...data lainnya... */]);
+
+                    // 2. PERBAIKAN UTAMA: Lengkapi data yang akan disimpan
+                    DetailTransaksi::create([
+                        'transaksi_id' => $transaksi->id,
+                        'barang_id' => $item['barang_id'],
+                        'jumlah' => $item['jumlah'],
+                        'harga_satuan' => $item['harga_saat_transaksi'],
+                        'subtotal' => $item['jumlah'] * $item['harga_saat_transaksi'],
+                    ]);
+
                     $barang->decrement('stok', $item['jumlah']);
                 }
             });

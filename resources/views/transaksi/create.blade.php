@@ -15,7 +15,6 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
-                    {{-- Pesan error dan sukses tidak berubah --}}
                     @if(session('success'))
                         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
                             {{ session('success') }}
@@ -37,8 +36,8 @@
                             <div class="md:col-span-2">
                                 <div class="bg-gray-100 p-4 rounded-lg">
                                     <label for="barang-search" class="block font-medium text-sm text-gray-700 mb-2">Cari & Pilih Barang</label>
-                                    <select id="barang-search" class="block w-full rounded-md shadow-sm border-gray-300">
-                                        <option value="">-- Pilih Barang --</option>
+                                    <select id="barang-search" class="w-full">
+                                        <option></option>
                                         @foreach($barangs as $barang)
                                             <option value="{{ $barang->id }}" 
                                                     data-nama="{{ $barang->nama_barang }}" 
@@ -52,14 +51,14 @@
                                 <div class="mt-4">
                                     <h3 class="text-lg font-bold mb-2">Keranjang</h3>
                                     <div class="overflow-x-auto">
-                                        <table class="min-w-full bg-white" id="cart-table">
+                                        <table class="min-w-full bg-white table-auto" id="cart-table">
                                             <thead class="bg-gray-200">
                                                 <tr>
                                                     <th class="py-2 px-4 border-b text-left">Nama Barang</th>
-                                                    <th class="py-2 px-4 border-b text-left w-24">Jumlah</th>
-                                                    <th class="py-2 px-4 border-b text-left w-36">Harga Satuan</th>
-                                                    <th class="py-2 px-4 border-b text-right w-36">Subtotal</th>
-                                                    <th class="py-2 px-4 border-b text-center w-16">Aksi</th>
+                                                    <th class="py-2 px-4 border-b text-left w-28">Jumlah</th>
+                                                    <th class="py-2 px-4 border-b text-left w-40">Harga Satuan</th>
+                                                    <th class="py-2 px-4 border-b text-right w-40">Subtotal</th>
+                                                    <th class="py-2 px-4 border-b text-center w-20">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -69,15 +68,15 @@
                                 </div>
                             </div>
                             
-                            {{-- Panel Kanan tidak berubah --}}
                             <div class="md:col-span-1">
                                 <div class="bg-blue-100 p-4 rounded-lg shadow-md">
                                     <h3 class="text-2xl font-bold mb-4">Total Belanja</h3>
                                     <div class="text-4xl font-extrabold text-blue-800 mb-6" id="grand-total">Rp 0</div>
-                                    <input type="hidden" name="total_harga" id="total_harga_input" value="0">
+                                    <input type="hidden" name="total_harga" id="total_harga_input" value="{{ old('total_harga', 0) }}">
                                     <div>
-                                        <label for="uang_bayar" class="block font-medium text-sm text-gray-700">Uang Bayar</label>
-                                        <input type="number" name="uang_bayar" id="uang_bayar" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
+                                        <label for="uang_bayar_formatted" class="block font-medium text-sm text-gray-700">Uang Bayar</label>
+                                        <input type="text" id="uang_bayar_formatted" inputmode="numeric" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ old('uang_bayar') ? number_format(old('uang_bayar'), 0, ',', '.') : '' }}" required>
+                                        <input type="hidden" name="uang_bayar" id="uang_bayar" value="{{ old('uang_bayar') }}">
                                     </div>
                                     <div class="mt-4">
                                         <label class="block font-medium text-sm text-gray-700">Uang Kembali</label>
@@ -97,140 +96,174 @@
         </div>
     </div>
     
+    @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // ... (variabel JS tidak berubah) ...
-            const barangSearch = document.getElementById('barang-search');
-            const cartTableBody = document.querySelector('#cart-table tbody');
-            const grandTotalEl = document.getElementById('grand-total');
-            const totalHargaInput = document.getElementById('total_harga_input');
-            const uangBayarInput = document.getElementById('uang_bayar');
-            const uangKembaliEl = document.getElementById('uang-kembali');
-            const transactionForm = document.getElementById('transaction-form');
+        $(document).ready(function() {
+            $('#barang-search').select2({
+                placeholder: "-- Cari Barang --"
+            });
+
+            const allProducts = @json($barangs->keyBy('id'));
+            const oldItems = @json(old('items'));
+            const cartTableBody = $('#cart-table tbody');
+            const grandTotalEl = $('#grand-total');
+            const totalHargaInput = $('#total_harga_input');
+            const uangBayarInput = $('#uang_bayar');
+            const uangBayarFormattedInput = $('#uang_bayar_formatted');
+            const uangKembaliEl = $('#uang-kembali');
+            const transactionForm = $('#transaction-form');
             let cartItems = {};
 
             function formatRupiah(number) {
                 return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
             }
 
-            barangSearch.addEventListener('change', function () {
-                const selectedOption = this.options[this.selectedIndex];
-                if (!selectedOption.value) return;
-                const barangId = selectedOption.value;
-                const nama = selectedOption.dataset.nama;
-                const harga = parseFloat(selectedOption.dataset.harga);
-                const stok = parseInt(selectedOption.dataset.stok);
-                addItemToCart(barangId, nama, harga, stok);
-                this.value = '';
+            $('#barang-search').on('select2:select', function (e) {
+                const selectedOption = $(e.params.data.element);
+                if (!selectedOption.val()) return;
+                const barangId = selectedOption.val();
+                const nama = selectedOption.data('nama');
+                const harga = parseFloat(selectedOption.data('harga'));
+                const stok = parseInt(selectedOption.data('stok'));
+                addItemToCart(barangId, nama, harga, stok, 1);
+                $(this).val(null).trigger('change');
             });
 
-            function addItemToCart(id, nama, harga, stok) {
-                if(stok <= 0) {
+            function addItemToCart(id, nama, harga, stok, jumlah = 1) {
+                if(stok <= 0 && !cartItems[id]) {
                     alert('Stok barang ' + nama + ' habis!');
                     return;
                 }
                 if (cartItems[id]) {
-                    cartItems[id].row.querySelector('.jumlah-input').focus();
+                    cartItems[id].row.find('.jumlah-input').focus();
                     return;
                 }
-                const newRow = document.createElement('tr');
-                newRow.dataset.id = id;
-                // PERBAIKAN: Menambahkan text-right pada subtotal
-                newRow.innerHTML = `
-                    <td class="py-2 px-4 border-b align-middle">${nama}</td>
-                    <td class="py-2 px-4 border-b align-middle">
-                        <input type="number" class="jumlah-input w-full rounded-md border-gray-300" value="1" min="1" max="${stok}" data-stok="${stok}">
-                    </td>
-                    <td class="py-2 px-4 border-b align-middle">
-                        <input type="number" class="harga-input w-full rounded-md border-gray-300" value="${harga}" min="0">
-                    </td>
-                    <td class="py-2 px-4 border-b font-bold subtotal text-right align-middle">${formatRupiah(harga)}</td>
-                    <td class="py-2 px-4 border-b text-center align-middle">
-                        <button type="button" class="remove-item-btn text-red-500 hover:text-red-700">X</button>
-                    </td>
-                `;
-                cartTableBody.appendChild(newRow);
+                const newRow = $(`
+                    <tr data-id="${id}">
+                        <td class="py-2 px-4 border-b align-middle">${nama}</td>
+                        <td class="py-2 px-4 border-b align-middle"><input type="number" class="jumlah-input w-full rounded-md border-gray-300" value="${jumlah}" min="1" max="${stok}" data-stok="${stok}"></td>
+                        <td class="py-2 px-4 border-b align-middle">
+                            <input type="text" class="harga-formatted w-full rounded-md border-gray-300" value="${harga.toLocaleString('id-ID')}" min="0">
+                            <input type="hidden" class="harga-input" value="${harga}">
+                        </td>
+                        <td class="py-2 px-4 border-b font-bold subtotal text-right align-middle">${formatRupiah(harga * jumlah)}</td>
+                        <td class="py-2 px-4 border-b text-center align-middle"><button type="button" class="remove-item-btn text-red-500 hover:text-red-700">X</button></td>
+                    </tr>
+                `);
+                cartTableBody.append(newRow);
                 cartItems[id] = { row: newRow };
-                updateTotals();
+                updateTotals(); 
             }
 
-            // ... (sisa kode JS tidak berubah) ...
-            cartTableBody.addEventListener('input', function (e) {
-                if (e.target.classList.contains('jumlah-input') || e.target.classList.contains('harga-input')) {
-                    const row = e.target.closest('tr');
-                    const jumlah = parseInt(row.querySelector('.jumlah-input').value);
-                    const stok = parseInt(row.querySelector('.jumlah-input').dataset.stok);
-                    if(jumlah > stok) {
-                        alert('Jumlah pembelian melebihi stok yang tersedia (' + stok + ')');
-                        row.querySelector('.jumlah-input').value = stok;
-                    }
-                    updateRowSubtotal(row);
+            function repopulateCart() {
+                if (oldItems && oldItems.length > 0) {
+                    oldItems.forEach(item => {
+                        const product = allProducts[item.barang_id];
+                        if (product) {
+                            addItemToCart(
+                                product.id,
+                                product.nama_barang,
+                                parseFloat(item.harga_saat_transaksi),
+                                product.stok,
+                                parseInt(item.jumlah)
+                            );
+                        }
+                    });
                 }
+                updateTotals();
+            }
+            repopulateCart();
+
+            cartTableBody.on('input', '.harga-formatted', function() {
+                let rawValue = $(this).val().replace(/[^0-9]/g, '');
+                $(this).siblings('.harga-input').val(rawValue);
+                if (rawValue) {
+                    let number = parseInt(rawValue, 10);
+                    $(this).val(number.toLocaleString('id-ID'));
+                } else {
+                    $(this).val('');
+                }
+                updateRowSubtotal($(this).closest('tr'));
+            });
+            
+            uangBayarFormattedInput.on('input', function() {
+                let rawValue = $(this).val().replace(/[^0-9]/g, '');
+                uangBayarInput.val(rawValue);
+                if (rawValue) {
+                    let number = parseInt(rawValue, 10);
+                    $(this).val(number.toLocaleString('id-ID'));
+                } else {
+                    $(this).val('');
+                }
+                updateUangKembali();
             });
 
-            cartTableBody.addEventListener('click', function (e) {
-                if (e.target.classList.contains('remove-item-btn')) {
-                    const row = e.target.closest('tr');
-                    const id = row.dataset.id;
-                    delete cartItems[id];
-                    row.remove();
-                    updateTotals();
+            cartTableBody.on('input', '.jumlah-input', function() {
+                const row = $(this).closest('tr');
+                const jumlah = parseInt(row.find('.jumlah-input').val());
+                const stok = parseInt(row.find('.jumlah-input').data('stok'));
+                if(jumlah > stok) {
+                    alert('Jumlah pembelian melebihi stok yang tersedia (' + stok + ')');
+                    row.find('.jumlah-input').val(stok);
                 }
+                updateRowSubtotal(row);
+            });
+
+            cartTableBody.on('click', '.remove-item-btn', function() {
+                const row = $(this).closest('tr');
+                const id = row.data('id');
+                delete cartItems[id];
+                row.remove();
+                updateTotals();
             });
 
             function updateRowSubtotal(row) {
-                const jumlah = parseFloat(row.querySelector('.jumlah-input').value) || 0;
-                const harga = parseFloat(row.querySelector('.harga-input').value) || 0;
-                const subtotal = jumlah * harga;
-                row.querySelector('.subtotal').textContent = formatRupiah(subtotal);
+                const jumlah = parseFloat(row.find('.jumlah-input').val()) || 0;
+                const harga = parseFloat(row.find('.harga-input').val()) || 0;
+                row.find('.subtotal').text(formatRupiah(jumlah * harga));
                 updateTotals();
             }
 
             function updateTotals() {
                 let grandTotal = 0;
-                document.querySelectorAll('#cart-table tbody tr').forEach(row => {
-                    const jumlah = parseFloat(row.querySelector('.jumlah-input').value) || 0;
-                    const harga = parseFloat(row.querySelector('.harga-input').value) || 0;
+                cartTableBody.find('tr').each(function() {
+                    const row = $(this);
+                    const jumlah = parseFloat(row.find('.jumlah-input').val()) || 0;
+                    const harga = parseFloat(row.find('.harga-input').val()) || 0;
                     grandTotal += jumlah * harga;
                 });
-                grandTotalEl.textContent = formatRupiah(grandTotal);
-                totalHargaInput.value = grandTotal;
+                grandTotalEl.text(formatRupiah(grandTotal));
+                totalHargaInput.val(grandTotal);
                 updateUangKembali();
             }
             
-            uangBayarInput.addEventListener('input', updateUangKembali);
-
             function updateUangKembali() {
-                const total = parseFloat(totalHargaInput.value) || 0;
-                const bayar = parseFloat(uangBayarInput.value) || 0;
+                const total = parseFloat(totalHargaInput.val()) || 0;
+                const bayar = parseFloat(uangBayarInput.val()) || 0;
                 const kembali = bayar - total;
-                uangKembaliEl.textContent = formatRupiah(kembali < 0 ? 0 : kembali);
+                uangKembaliEl.text(formatRupiah(kembali < 0 ? 0 : kembali));
             }
             
-            transactionForm.addEventListener('submit', function (e) {
-                document.querySelectorAll('input[name^="items["]').forEach(el => el.remove());
+            transactionForm.on('submit', function (e) {
+                $('input[name^="items["]').remove();
                 let index = 0;
-                document.querySelectorAll('#cart-table tbody tr').forEach(row => {
-                    const barangId = row.dataset.id;
-                    const jumlah = row.querySelector('.jumlah-input').value;
-                    const harga = row.querySelector('.harga-input').value;
-                    const hiddenInputId = createHiddenInput(`items[${index}][barang_id]`, barangId);
-                    const hiddenInputJumlah = createHiddenInput(`items[${index}][jumlah]`, jumlah);
-                    const hiddenInputHarga = createHiddenInput(`items[${index}][harga_saat_transaksi]`, harga);
-                    transactionForm.appendChild(hiddenInputId);
-                    transactionForm.appendChild(hiddenInputJumlah);
-                    transactionForm.appendChild(hiddenInputHarga);
+                cartTableBody.find('tr').each(function() {
+                    const row = $(this);
+                    const barangId = row.data('id');
+                    const jumlah = row.find('.jumlah-input').val();
+                    const harga = row.find('.harga-input').val();
+                    
+                    transactionForm.append(createHiddenInput(`items[${index}][barang_id]`, barangId));
+                    transactionForm.append(createHiddenInput(`items[${index}][jumlah]`, jumlah));
+                    transactionForm.append(createHiddenInput(`items[${index}][harga_saat_transaksi]`, harga));
                     index++;
                 });
             });
 
             function createHiddenInput(name, value) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = name;
-                input.value = value;
-                return input;
+                return $('<input>').attr({ type: 'hidden', name: name, value: value });
             }
         });
     </script>
+    @endpush
 </x-app-layout>

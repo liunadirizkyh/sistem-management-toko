@@ -24,19 +24,19 @@
             <div id="nota" class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-8">
                 
                 <div class="text-center mb-8">
-                    <h1 class="text-2xl font-bold">TOKO BANGUNAN ANDA</h1>
-                    <p class="text-gray-600">Jalan Alamat Toko No. 123, Kota Anda</p>
+                    <h1 class="text-2xl font-bold">Sumber Rezeki</h1>
+                    <p class="text-gray-600">Jl. Mohnoh Nur No.204, Leuwimekar, Kec. Leuwiliang, Kabupaten Bogor</p>
                     <p class="text-gray-600">Telp: 0812-3456-7890</p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 border-b pb-4 mb-4 text-sm">
+                <div class="gap-4 border-b pb-4 mb-4 text-sm">
                     <div>
                         <p><strong>No. Transaksi:</strong> {{ $transaksi->nomor_transaksi }}</p>
-                    </div>
-                    <div class="text-right">
                         <p><strong>Tanggal:</strong> {{ $transaksi->created_at->format('d M Y, H:i:s') }}</p>
-                        {{-- <p><strong>Kasir:</strong> {{ $transaksi->user->name }}</p> --}}
                     </div>
+                    {{-- <div class="text-right">
+                        <p><strong>Kasir:</strong> {{ $transaksi->user->name }}</p>
+                    </div> --}}
                 </div>
 
                 <table class="w-full mb-6 text-sm">
