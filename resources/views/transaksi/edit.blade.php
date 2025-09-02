@@ -1,14 +1,22 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            <a href="{{ route('transaksi.index') }}" class="hover:underline">
-                Riwayat Transaksi
-            </a>
-            <span class="mx-2 font-sans">&gt;</span>
-            <span>
-                Edit Transaksi
-            </span>
-        </h2>
+        <div class="relative flex items-center h-full">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                <a href="{{ route('transaksi.index') }}" class="hover:underline">
+                    Riwayat Transaksi
+                </a>
+                <span class="mx-2 font-sans">&gt;</span>
+                <span>
+                    Edit Transaksi
+                </span>
+            </h2>
+            <div class="absolute top-0 right-0 h-full flex items-center">
+                <a href="{{ route('transaksi.show', $transaksi) }}" target="_blank" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded inline-flex items-center no-print">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Cetak Nota
+                </a>
+            </div>
+        </div>
     </x-slot>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -58,11 +66,10 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {{-- Jika tidak ada error validasi, tampilkan data dari database --}}
                                                 @if(!old('items'))
                                                     @foreach($transaksi->details as $item)
                                                     <tr data-id="{{ $item->barang_id }}">
-                                                        <td class="py-2 px-4 border-b align-middle">{{ $item->barang->nama_barang }}</td>
+                                                        <td class="py-2 px-4 border-b align-middle">{{ $item->barang->nama_barang }} @if ($item->barang->trashed()) <span class="text-xs text-red-500">(Dihapus)</span> @endif</td>
                                                         <td class="py-2 px-4 border-b align-middle">
                                                             <input type="number" class="jumlah-input w-full rounded-md border-gray-300" value="{{ $item->jumlah }}" min="1">
                                                         </td>
@@ -84,28 +91,47 @@
                             </div>
                             
                             <div class="md:col-span-1">
-                                <div class="bg-blue-100 p-4 rounded-lg shadow-md">
+                                <div class="bg-blue-100 p-4 rounded-lg shadow-md flex flex-col h-full">
                                     <h3 class="text-2xl font-bold mb-4">Total Belanja</h3>
                                     <div class="text-4xl font-extrabold text-blue-800 mb-6" id="grand-total">Rp 0</div>
                                     <input type="hidden" name="total_harga" id="total_harga_input" value="{{ old('total_harga', $transaksi->total_harga) }}">
-                                    <div>
+                                    
+                                    <div class="mb-4">
                                         <label for="uang_bayar_formatted" class="block font-medium text-sm text-gray-700">Uang Bayar</label>
                                         <input type="text" id="uang_bayar_formatted" inputmode="numeric" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ number_format(old('uang_bayar', $transaksi->uang_bayar), 0, ',', '.') }}" required>
                                         <input type="hidden" name="uang_bayar" id="uang_bayar" value="{{ old('uang_bayar', $transaksi->uang_bayar) }}">
                                     </div>
-                                    <div class="mt-4">
+
+                                    <div>
                                         <label class="block font-medium text-sm text-gray-700">Uang Kembali</label>
                                         <div class="mt-1 p-2 bg-gray-200 rounded-md font-bold text-lg" id="uang-kembali">Rp 0</div>
                                     </div>
-                                    <div class="mt-6">
-                                        <button type="submit" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-4 rounded text-lg">
-                                            Update Transaksi
-                                        </button>
+
+                                    <div class="mt-auto pt-6 border-t">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <button type="button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm" onclick="if(confirm('Anda YAKIN ingin menghapus transaksi ini? Stok akan dikembalikan.')) document.getElementById('delete-form').submit();">
+                                                    Hapus
+                                                </button>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <a href="{{ route('transaksi.index') }}" class="text-gray-600 font-bold py-2 px-4 rounded text-sm hover:text-gray-900">Batal</a>
+                                                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                                    Update
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </form>
+                    
+                    <form action="{{ route('transaksi.destroy', $transaksi) }}" method="POST" id="delete-form" class="hidden">
+                        @csrf
+                        @method('DELETE')
+                    </form>
+
                 </div>
             </div>
         </div>
@@ -129,7 +155,6 @@
             const transactionForm = $('#transaction-form');
             let cartItems = {};
 
-            // Inisialisasi item yang sudah ada di keranjang dari Blade
             $('#cart-table tbody tr').each(function() {
                 const row = $(this);
                 const id = row.data('id');
@@ -178,32 +203,26 @@
             }
 
             function repopulateCart() {
-                // Jika ada error validasi, `oldItems` akan berisi data.
-                // Kita bersihkan dulu keranjang awal, lalu bangun ulang dari `oldItems`.
                 if (oldItems && oldItems.length > 0) {
-                    cartTableBody.empty(); // Kosongkan keranjang dari data database
-                    cartItems = {}; // Reset object cartItems
+                    cartTableBody.empty();
+                    cartItems = {};
                     oldItems.forEach(item => {
                         const product = allProducts[item.barang_id];
                         if (product) {
-                            // Hitung stok asli saat itu untuk validasi di sisi client
                             const originalDetail = @json($transaksi->details->keyBy('barang_id'));
                             let currentStok = product.stok;
                             if(originalDetail[item.barang_id]) {
                                 currentStok += originalDetail[item.barang_id].jumlah;
                             }
-
                             addItemToCart(
-                                product.id,
-                                product.nama_barang,
-                                parseFloat(item.harga_saat_transaksi),
-                                currentStok,
+                                product.id, product.nama_barang,
+                                parseFloat(item.harga_saat_transaksi), currentStok,
                                 parseInt(item.jumlah)
                             );
                         }
                     });
                 }
-                updateTotals(); // Hitung total, baik dari data lama atau data awal
+                updateTotals();
             }
             repopulateCart();
 

@@ -69,23 +69,29 @@
                             </div>
                             
                             <div class="md:col-span-1">
-                                <div class="bg-blue-100 p-4 rounded-lg shadow-md">
+                                <div class="bg-blue-100 p-4 rounded-lg shadow-md flex flex-col h-full">
                                     <h3 class="text-2xl font-bold mb-4">Total Belanja</h3>
                                     <div class="text-4xl font-extrabold text-blue-800 mb-6" id="grand-total">Rp 0</div>
                                     <input type="hidden" name="total_harga" id="total_harga_input" value="{{ old('total_harga', 0) }}">
-                                    <div>
+                                    
+                                    <div class="mb-4">
                                         <label for="uang_bayar_formatted" class="block font-medium text-sm text-gray-700">Uang Bayar</label>
                                         <input type="text" id="uang_bayar_formatted" inputmode="numeric" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ old('uang_bayar') ? number_format(old('uang_bayar'), 0, ',', '.') : '' }}" required>
                                         <input type="hidden" name="uang_bayar" id="uang_bayar" value="{{ old('uang_bayar') }}">
                                     </div>
-                                    <div class="mt-4">
+
+                                    <div>
                                         <label class="block font-medium text-sm text-gray-700">Uang Kembali</label>
                                         <div class="mt-1 p-2 bg-gray-200 rounded-md font-bold text-lg" id="uang-kembali">Rp 0</div>
                                     </div>
-                                    <div class="mt-6">
-                                        <button type="submit" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-4 rounded text-lg">
-                                            Simpan Transaksi
-                                        </button>
+
+                                    <div class="mt-auto pt-6">
+                                        <div class="flex items-center justify-end space-x-2">
+                                            <a href="{{ route('transaksi.index') }}" class="text-gray-600 hover:text-gray-900 font-bold py-2 px-4 rounded text-sm">Batal</a>
+                                            <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                                Simpan
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

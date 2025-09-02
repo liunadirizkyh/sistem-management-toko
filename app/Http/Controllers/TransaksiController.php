@@ -65,7 +65,7 @@ class TransaksiController extends Controller
             return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
         }
 
-        return redirect()->route('transaksi.show', $transaksi)->with('success', 'Transaksi berhasil disimpan!');
+        return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil disimpan!');
     }
 
     /**
@@ -74,23 +74,13 @@ class TransaksiController extends Controller
 
     public function index(Request $request)
     {
-        // Ambil input dari request, berikan nilai default
         $search = $request->input('search');
         $perPage = $request->input('per_page', 10);
-
-        // Mulai query dasar dengan eager loading relasi user
-        // PERBAIKAN UTAMA: Menambahkan ->with('user')
         $query = Transaksi::with('user')->latest();
-
-        // Terapkan filter pencarian jika ada input
         if ($search) {
             $query->where('nomor_transaksi', 'like', "%{$search}%");
         }
-
-        // Lakukan paginasi setelah semua filter diterapkan
         $transaksis = $query->paginate($perPage)->appends($request->query());
-
-        // Kirim data ke view
         return view('transaksi.index', [
             'transaksis' => $transaksis,
             'search' => $search,
@@ -122,7 +112,6 @@ class TransaksiController extends Controller
      */
     public function update(Request $request, Transaksi $transaksi)
     {
-        // 1. Lengkapi validasi agar sama seperti method store
         $request->validate([
             'items' => 'required|array|min:1',
             'items.*.barang_id' => 'required|exists:barangs,id',
@@ -136,27 +125,25 @@ class TransaksiController extends Controller
             DB::transaction(function () use ($request, $transaksi) {
                 // Kembalikan stok lama
                 foreach ($transaksi->details as $detail) {
-                    Barang::find($detail->barang_id)->increment('stok', $detail->jumlah);
+                    // PERBAIKAN: Gunakan withTrashed() untuk menemukan barang yang sudah di-soft delete
+                    $barangLama = Barang::withTrashed()->find($detail->barang_id);
+                    if ($barangLama) {
+                        $barangLama->increment('stok', $detail->jumlah);
+                    }
                 }
 
-                // Hapus detail lama
                 $transaksi->details()->delete();
-
-                // Update data utama transaksi
                 $transaksi->update([
                     'total_harga' => $request->total_harga,
                     'uang_bayar' => $request->uang_bayar,
                     'uang_kembali' => $request->uang_bayar - $request->total_harga,
                 ]);
 
-                // Buat detail baru & kurangi stok baru
                 foreach ($request->items as $item) {
                     $barang = Barang::find($item['barang_id']);
                     if ($barang->stok < $item['jumlah']) {
                         throw new \Exception('Stok untuk barang ' . $barang->nama_barang . ' tidak mencukupi.');
                     }
-
-                    // 2. PERBAIKAN UTAMA: Lengkapi data yang akan disimpan
                     DetailTransaksi::create([
                         'transaksi_id' => $transaksi->id,
                         'barang_id' => $item['barang_id'],
@@ -164,7 +151,6 @@ class TransaksiController extends Controller
                         'harga_satuan' => $item['harga_saat_transaksi'],
                         'subtotal' => $item['jumlah'] * $item['harga_saat_transaksi'],
                     ]);
-
                     $barang->decrement('stok', $item['jumlah']);
                 }
             });
@@ -181,11 +167,13 @@ class TransaksiController extends Controller
     {
         try {
             DB::transaction(function () use ($transaksi) {
-                // 1. Kembalikan stok barang
                 foreach ($transaksi->details as $detail) {
-                    Barang::find($detail->barang_id)->increment('stok', $detail->jumlah);
+                    // PERBAIKAN: Gunakan withTrashed() untuk menemukan barang yang sudah di-soft delete
+                    $barang = Barang::withTrashed()->find($detail->barang_id);
+                    if ($barang) {
+                        $barang->increment('stok', $detail->jumlah);
+                    }
                 }
-                // 2. Hapus transaksi
                 $transaksi->delete();
             });
         } catch (\Exception $e) {
