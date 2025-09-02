@@ -7,14 +7,34 @@ use Illuminate\Http\Request;
 
 class BarangController extends Controller
 {
-    /**
-     * Menampilkan daftar semua barang.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        // Ambil semua data barang, urutkan dari yang terbaru, dan gunakan pagination
-        $barangs = Barang::latest()->paginate(10);
-        return view('barang.index', compact('barangs'));
+        // Ambil input dari request, berikan nilai default
+        $search = $request->input('search');
+        $perPage = $request->input('per_page', 10); // Default 10 data per halaman
+
+        // Mulai query dasar, urutkan dari yang terbaru
+        $query = Barang::latest();
+
+        // Terapkan filter pencarian jika ada input
+        if ($search) {
+            // Cari berdasarkan Nama Barang ATAU Kode Barang
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_barang', 'like', "%{$search}%")
+                    ->orWhere('kode_barang', 'like', "%{$search}%");
+            });
+        }
+
+        // Lakukan paginasi setelah semua filter diterapkan
+        // Gunakan appends() agar parameter filter tetap ada saat pindah halaman
+        $barangs = $query->paginate($perPage)->appends($request->query());
+
+        // Kirim data ke view
+        return view('barang.index', [
+            'barangs' => $barangs,
+            'search' => $search,   // Kirim kembali term pencarian untuk ditampilkan di form
+            'perPage' => $perPage, // Kirim kembali jumlah per halaman untuk dropdown
+        ]);
     }
 
     /**
