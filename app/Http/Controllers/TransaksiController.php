@@ -71,10 +71,31 @@ class TransaksiController extends Controller
     /**
      * Menampilkan halaman riwayat transaksi.
      */
-    public function index()
+
+    public function index(Request $request)
     {
-        $transaksis = Transaksi::with('user')->latest()->paginate(15);
-        return view('transaksi.index', compact('transaksis'));
+        // Ambil input dari request, berikan nilai default
+        $search = $request->input('search');
+        $perPage = $request->input('per_page', 10);
+
+        // Mulai query dasar dengan eager loading relasi user
+        // PERBAIKAN UTAMA: Menambahkan ->with('user')
+        $query = Transaksi::with('user')->latest();
+
+        // Terapkan filter pencarian jika ada input
+        if ($search) {
+            $query->where('nomor_transaksi', 'like', "%{$search}%");
+        }
+
+        // Lakukan paginasi setelah semua filter diterapkan
+        $transaksis = $query->paginate($perPage)->appends($request->query());
+
+        // Kirim data ke view
+        return view('transaksi.index', [
+            'transaksis' => $transaksis,
+            'search' => $search,
+            'perPage' => $perPage,
+        ]);
     }
 
     /**
