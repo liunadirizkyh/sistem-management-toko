@@ -11,10 +11,10 @@
                 </span>
             </h2>
             <div class="absolute top-0 right-0 h-full flex items-center">
-                <a href="{{ route('transaksi.show', $transaksi) }}" target="_blank" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded inline-flex items-center no-print">
+                <button type="button" data-url="{{ route('transaksi.show', $transaksi) }}" class="print-nota-btn bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded inline-flex items-center no-print">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                     Cetak Nota
-                </a>
+                </button>
             </div>
         </div>
     </x-slot>
@@ -115,8 +115,8 @@
                                                 </button>
                                             </div>
                                             <div class="flex items-center space-x-2">
-                                                <a href="{{ route('transaksi.index') }}" class="text-gray-600 font-bold py-2 px-4 rounded text-sm hover:text-gray-900">Batal</a>
-                                                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                                <a href="{{ route('transaksi.index') }}" class="hover:text-gray-900 text-gray-600 font-bold py-2 px-4 rounded text-sm">Batal</a>
+                                                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm" form="transaction-form">
                                                     Update
                                                 </button>
                                             </div>
@@ -312,6 +312,27 @@
             function createHiddenInput(name, value) {
                 return $('<input>').attr({ type: 'hidden', name: name, value: value });
             }
+
+            // Script untuk cetak nota langsung dari halaman edit
+            $('.print-nota-btn').on('click', function(e) {
+                e.preventDefault();
+                const url = $(this).data('url');
+                $('iframe[name="nota-frame"]').remove();
+                const iframe = $('<iframe>', {
+                    name: 'nota-frame',
+                    src: url,
+                    style: 'display:none;'
+                }).appendTo('body');
+                iframe.on('load', function() {
+                    try {
+                        this.contentWindow.focus();
+                        this.contentWindow.print();
+                    } catch (e) {
+                        console.error("Gagal print:", e);
+                    }
+                    setTimeout(() => $(this).remove(), 1000);
+                });
+            });
         });
     </script>
     @endpush

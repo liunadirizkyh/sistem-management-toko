@@ -8,7 +8,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <div class="mb-6 p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="mb-6 p-6 bg-white rounded-lg border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Filter Laporan</h3>
                 <form action="{{ route('dashboard') }}" method="GET">
                     <div class="grid grid-cols-1 md:grid-cols-10 gap-4 items-end">

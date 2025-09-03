@@ -20,33 +20,44 @@
                         @csrf
                         @method('PUT')
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {{-- Input fields (tidak ada perubahan di sini) --}}
                             <div>
                                 <label for="nama_barang" class="block font-medium text-sm text-gray-700">Nama Barang</label>
                                 <input type="text" name="nama_barang" id="nama_barang" value="{{ old('nama_barang', $barang->nama_barang) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
+                                @error('nama_barang')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
                                 <label for="kode_barang" class="block font-medium text-sm text-gray-700">Kode Barang (Opsional)</label>
                                 <input type="text" name="kode_barang" id="kode_barang" value="{{ old('kode_barang', $barang->kode_barang) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300">
+                                @error('kode_barang')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
                                 <label for="satuan" class="block font-medium text-sm text-gray-700">Satuan</label>
                                 <input type="text" name="satuan" id="satuan" value="{{ old('satuan', $barang->satuan) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
+                                @error('satuan')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
+
                             <div>
-                                <label for="stok" class="block font-medium text-sm text-gray-700">Stok</label>
-                                <input type="number" name="stok" id="stok" value="{{ old('stok', $barang->stok) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
+                                <label for="stok_formatted" class="block font-medium text-sm text-gray-700">Stok</label>
+                                <input type="text" id="stok_formatted" inputmode="numeric" class="number-format block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ number_format(old('stok', $barang->stok), 0, ',', '.') }}" required>
+                                <input type="hidden" name="stok" id="stok" value="{{ old('stok', $barang->stok) }}">
+                                @error('stok')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
+
                             <div>
-                                <label for="harga_beli" class="block font-medium text-sm text-gray-700">Harga Beli (Modal)</label>
-                                <input type="number" name="harga_beli" id="harga_beli" value="{{ old('harga_beli', $barang->harga_beli) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
+                                <label for="harga_beli_formatted" class="block font-medium text-sm text-gray-700">Harga Beli (Modal)</label>
+                                <input type="text" id="harga_beli_formatted" inputmode="numeric" class="number-format block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ number_format(old('harga_beli', $barang->harga_beli), 0, ',', '.') }}" required>
+                                <input type="hidden" name="harga_beli" id="harga_beli" value="{{ old('harga_beli', $barang->harga_beli) }}">
+                                @error('harga_beli')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
+
                             <div>
-                                <label for="harga_jual" class="block font-medium text-sm text-gray-700">Harga Jual</label>
-                                <input type="number" name="harga_jual" id="harga_jual" value="{{ old('harga_jual', $barang->harga_jual) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
+                                <label for="harga_jual_formatted" class="block font-medium text-sm text-gray-700">Harga Jual</label>
+                                <input type="text" id="harga_jual_formatted" inputmode="numeric" class="number-format block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ number_format(old('harga_jual', $barang->harga_jual), 0, ',', '.') }}" required>
+                                <input type="hidden" name="harga_jual" id="harga_jual" value="{{ old('harga_jual', $barang->harga_jual) }}">
+                                @error('harga_jual')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
                         </div>
-                        </form>
+                    </form>
 
                     <div class="flex items-center justify-between mt-6 border-t pt-4">
                         <div>
@@ -70,4 +81,30 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        $(document).ready(function() {
+            // Fungsi ini akan menangani semua input dengan class 'number-format'
+            $('.number-format').on('input', function() {
+                // Dapatkan ID dari input tersembunyi yang sesuai
+                let hiddenInputId = $(this).attr('id').replace('_formatted', '');
+                
+                // 1. Ambil nilai mentah (hanya angka)
+                let rawValue = $(this).val().replace(/[^0-9]/g, '');
+                
+                // 2. Simpan nilai mentah ke input tersembunyi
+                $(`#${hiddenInputId}`).val(rawValue);
+
+                // 3. Format dan tampilkan kembali jika ada isinya
+                if (rawValue) {
+                    let number = parseInt(rawValue, 10);
+                    $(this).val(number.toLocaleString('id-ID'));
+                } else {
+                    $(this).val('');
+                }
+            });
+        });
+    </script>
+    @endpush
 </x-app-layout>
