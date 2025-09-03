@@ -78,7 +78,7 @@
                         </div>
                     </form>
 
-                    <div class="flex items-center justify-between mt-6 border-t pt-4">
+                    <div class="flex items-center justify-between mt-6 pt-4">
                         <div>
                             <form action="{{ route('barang.destroy', $barang->id) }}" method="POST" onsubmit="return confirm('Anda YAKIN ingin menghapus barang ini? Tindakan ini tidak bisa dibatalkan.');">
                                 @csrf
