@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\HutangSupplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB; // Pastikan DB facade di-import
 
 class HutangSupplierController extends Controller
 {
@@ -23,7 +24,6 @@ class HutangSupplierController extends Controller
             });
         }
 
-        // Filter berdasarkan status
         $query->when($status, function ($q, $status) {
             if ($status == 'lunas') {
                 return $q->whereColumn('jumlah_dibayar', '>=', 'harga_total');
@@ -53,7 +53,8 @@ class HutangSupplierController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        // PERBAIKAN: Simpan hasil validasi ke dalam variabel $validated
+        $validated = $request->validate([
             'tanggal_datang' => 'required|date',
             'nama_supplier' => 'required|string|max:255',
             'kode_nota' => 'required|string|max:50|unique:hutang_suppliers,kode_nota',
@@ -64,7 +65,9 @@ class HutangSupplierController extends Controller
             'tanggal_bayar' => 'nullable|date',
         ]);
 
-        HutangSupplier::create($request->all());
+        $validated['jumlah_dibayar'] = $validated['jumlah_dibayar'] ?? 0;
+
+        HutangSupplier::create($validated);
         return redirect()->route('hutang-supplier.index')->with('success', 'Data hutang berhasil ditambahkan.');
     }
 
@@ -75,7 +78,8 @@ class HutangSupplierController extends Controller
 
     public function update(Request $request, HutangSupplier $hutangSupplier)
     {
-        $request->validate([
+        // PERBAIKAN: Simpan hasil validasi ke dalam variabel $validated
+        $validated = $request->validate([
             'tanggal_datang' => 'required|date',
             'nama_supplier' => 'required|string|max:255',
             'kode_nota' => 'required|string|max:50|unique:hutang_suppliers,kode_nota,' . $hutangSupplier->id,
@@ -86,7 +90,9 @@ class HutangSupplierController extends Controller
             'tanggal_bayar' => 'nullable|date',
         ]);
 
-        $hutangSupplier->update($request->all());
+        $validated['jumlah_dibayar'] = $validated['jumlah_dibayar'] ?? 0;
+
+        $hutangSupplier->update($validated);
         return redirect()->route('hutang-supplier.index')->with('success', 'Data hutang berhasil diperbarui.');
     }
 

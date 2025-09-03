@@ -28,7 +28,7 @@
                             
                             <div>
                                 <label for="tanggal_datang" class="block font-medium text-sm text-gray-700">Tanggal Datang</label>
-                                <input type="date" name="tanggal_datang" id="tanggal_datang" value="{{ old('tanggal_datang') }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
+                                <input type="date" name="tanggal_datang" id="tanggal_datang" value="{{ old('tanggal_datang', now()->toDateString()) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
                                 @error('tanggal_datang')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
 
@@ -56,18 +56,27 @@
                                 @error('nama_barang')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            <div>
-                                <label for="harga_total_formatted" class="block font-medium text-sm text-gray-700">Total Tagihan</label>
-                                <input type="text" id="harga_total_formatted" inputmode="numeric" class="number-format block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ old('harga_total') ? number_format(old('harga_total'), 0, ',', '.') : '' }}" required>
-                                <input type="hidden" name="harga_total" id="harga_total" value="{{ old('harga_total') }}">
-                                @error('harga_total')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-                            </div>
+                            <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                <div>
+                                    <label for="harga_total_formatted" class="block font-medium text-sm text-gray-700">Total Tagihan</label>
+                                    <input type="text" id="harga_total_formatted" inputmode="numeric" class="number-format block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ old('harga_total') ? number_format(old('harga_total'), 0, ',', '.') : '' }}" required>
+                                    <input type="hidden" name="harga_total" id="harga_total" value="{{ old('harga_total') }}">
+                                    @error('harga_total')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                                </div>
 
-                            <div>
-                                <label for="jumlah_dibayar_formatted" class="block font-medium text-sm text-gray-700">Jumlah Dibayar (Opsional)</label>
-                                <input type="text" id="jumlah_dibayar_formatted" inputmode="numeric" class="number-format block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ old('jumlah_dibayar') ? number_format(old('jumlah_dibayar'), 0, ',', '.') : '' }}">
-                                <input type="hidden" name="jumlah_dibayar" id="jumlah_dibayar" value="{{ old('jumlah_dibayar', 0) }}">
-                                @error('jumlah_dibayar')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                                <div>
+                                    <label for="jumlah_dibayar_formatted" class="block font-medium text-sm text-gray-700">Jumlah Dibayar (Opsional)</label>
+                                    <input type="text" id="jumlah_dibayar_formatted" inputmode="numeric" class="number-format block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ old('jumlah_dibayar') ? number_format(old('jumlah_dibayar'), 0, ',', '.') : '' }}">
+                                    <input type="hidden" name="jumlah_dibayar" id="jumlah_dibayar" value="{{ old('jumlah_dibayar', 0) }}">
+                                    @error('jumlah_dibayar')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                                </div>
+                                
+                                <div>
+                                    <label class="block font-medium text-sm text-gray-700">Sisa Tagihan</label>
+                                    <div id="sisa-tagihan" class="block mt-1 w-full p-2 bg-gray-200 rounded-md shadow-sm border-gray-300 text-sm">
+                                        Rp 0
+                                    </div>
+                                </div>
                             </div>
                             
                             <div class="md:col-span-2">
@@ -93,15 +102,33 @@
     @push('scripts')
     <script>
         $(document).ready(function() {
+            function updateSisaTagihan() {
+                const total = parseFloat($('#harga_total').val()) || 0;
+                const dibayar = parseFloat($('#jumlah_dibayar').val()) || 0;
+                const sisa = total - dibayar;
+                
+                const formattedSisa = new Intl.NumberFormat('id-ID', { 
+                    style: 'currency', 
+                    currency: 'IDR', 
+                    minimumFractionDigits: 0 
+                }).format(sisa);
+
+                $('#sisa-tagihan').text(formattedSisa);
+            }
+            
+            updateSisaTagihan();
+
             $('.number-format').on('input', function() {
                 let hiddenInputId = $(this).attr('id').replace('_formatted', '');
                 let rawValue = $(this).val().replace(/[^0-9]/g, '');
                 $(`#${hiddenInputId}`).val(rawValue);
+
                 if (rawValue) {
                     $(this).val(parseInt(rawValue, 10).toLocaleString('id-ID'));
                 } else {
                     $(this).val('');
                 }
+                updateSisaTagihan();
             });
         });
     </script>
