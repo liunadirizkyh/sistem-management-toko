@@ -28,6 +28,10 @@
                         <x-nav-link :href="route('kode-barang.index')" :active="request()->routeIs('kode-barang.*')">
                             {{ __('Kode Barang') }}
                         </x-nav-link>
+
+                        <x-nav-link :href="route('hutang-supplier.index')" :active="request()->routeIs('hutang-supplier.*')">
+                            {{ __('Hutang Supplier') }}
+                        </x-nav-link>
                     @endrole
                 </div>
             </div>
