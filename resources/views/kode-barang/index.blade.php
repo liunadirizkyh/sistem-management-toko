@@ -2,11 +2,11 @@
     <x-slot name="header">
         <div class="relative flex items-center h-full">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Manajemen Barang') }}
+                {{ __('Manajemen Kode Barang') }}
             </h2>
             <div class="absolute top-0 right-0 h-full flex items-center">
-                <a href="{{ route('barang.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    + Tambah Barang
+                <a href="{{ route('kode-barang.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    + Tambah Kode Barang
                 </a>
             </div>
         </div>
@@ -34,7 +34,7 @@
 
                     <!-- Form Filter & Pencarian -->
                     <div class="mb-4">
-                        <form action="{{ route('barang.index') }}" method="GET">
+                        <form action="{{ route('kode-barang.index') }}" method="GET">
                             <div class="flex flex-col sm:flex-row gap-4">
                                 <div class="flex items-center space-x-2">
                                     <label for="per_page" class="text-sm font-medium text-gray-700">Tampilkan:</label>
@@ -49,7 +49,7 @@
                                 </div>
                                 
                                 <div class="relative flex-grow">
-                                    <input type="search" name="search" id="search" placeholder="Cari Nama/Kode Barang..." value="{{ $search ?? '' }}" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                                    <input type="search" name="search" id="search" placeholder="Cari Kode Barang..." value="{{ $search ?? '' }}" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                     </div>
@@ -59,7 +59,7 @@
                                     <button type="submit" class="w-full sm:w-auto bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 text-sm">
                                         Cari
                                     </button>
-                                    <a href="{{ route('barang.index') }}" class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-md hover:bg-gray-300 text-sm">
+                                    <a href="{{ route('kode-barang.index') }}" class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-md hover:bg-gray-300 text-sm">
                                         Reset
                                     </a>
                                 </div>
@@ -68,30 +68,22 @@
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white table-fixed">
+                        <table class="min-w-full bg-white table-auto">
                             <thead class="bg-gray-200">
                                 <tr>
-                                    <th class="w-1/5 py-2 px-4 border-b text-left align-middle">Kode Barang</th>
-                                    <th class="w-1/4 py-2 px-4 border-b text-left align-middle">Nama Barang</th>
-                                    <th class="w-1/12 py-2 px-4 border-b text-center align-middle">Satuan</th>
-                                    <th class="w-1/12 py-2 px-4 border-b text-center align-middle">Stok</th>
-                                    <th class="w-1/6 py-2 px-4 border-b text-right align-middle">Harga Beli</th>
-                                    <th class="w-1/6 py-2 px-4 border-b text-right align-middle">Harga Jual</th>
+                                    <th class="py-2 px-4 border-b text-left align-middle">Kode</th>
+                                    <th class="py-2 px-4 border-b text-right align-middle">Harga Modal</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($barangs as $barang)
-                                    <tr class="hover:bg-gray-100 cursor-pointer" onclick="window.location='{{ route('barang.edit', $barang->id) }}'">
-                                        <td class="py-2 px-4 border-b align-middle">{{ optional($barang->kodeBarang)->kode ?? '-' }}</td>
-                                        <td class="py-2 px-4 border-b align-middle">{{ $barang->nama_barang }}</td>
-                                        <td class="py-2 px-4 border-b text-center align-middle">{{ $barang->satuan }}</td>
-                                        <td class="py-2 px-4 border-b text-center align-middle">{{ $barang->stok }}</td>
-                                        <td class="py-2 px-4 border-b text-right align-middle">Rp {{ number_format(optional($barang->kodeBarang)->harga_modal, 0, ',', '.') }}</td>
-                                        <td class="py-2 px-4 border-b text-right align-middle">Rp {{ number_format($barang->harga_jual, 0, ',', '.') }}</td>
+                                @forelse ($kodeBarangs as $kodeBarang)
+                                    <tr class="hover:bg-gray-100 cursor-pointer" onclick="window.location='{{ route('kode-barang.edit', $kodeBarang->id) }}'">
+                                        <td class="py-2 px-4 border-b align-middle">{{ $kodeBarang->kode }}</td>
+                                        <td class="py-2 px-4 border-b text-right align-middle">Rp {{ number_format($kodeBarang->harga_modal, 0, ',', '.') }}</td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-4 text-gray-500">Tidak ada barang yang cocok dengan pencarian Anda.</td>
+                                        <td colspan="2" class="text-center py-4 text-gray-500">Tidak ada kode barang yang cocok dengan pencarian Anda.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -99,7 +91,7 @@
                     </div>
                     
                     <div class="mt-6">
-                        {{ $barangs->links() }}
+                        {{ $kodeBarangs->links() }}
                     </div>
                 </div>
             </div>

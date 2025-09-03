@@ -12,14 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('barangs', function (Blueprint $table) {
-            $table->id(); // ID Barang (auto-generated)
-            $table->string('kode_barang')->unique()->nullable();
+            $table->id();
+
+            // Kolom foreign key untuk relasi ke tabel kode_barangs
+            $table->foreignId('kode_barang_id')->nullable()->constrained('kode_barangs');
+
             $table->string('nama_barang');
             $table->string('satuan');
-            $table->unsignedBigInteger('harga_beli'); // Modal
-            $table->unsignedBigInteger('harga_jual'); // Harga Jual
+
+            $table->unsignedBigInteger('harga_jual');
             $table->integer('stok')->default(0);
             $table->timestamps();
+            $table->softDeletes(); // Langsung tambahkan soft delete di sini
         });
     }
 

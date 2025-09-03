@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('barangs', function (Blueprint $table) {
-            $table->softDeletes(); // Tambahkan baris ini
+        Schema::create('kode_barangs', function (Blueprint $table) {
+            $table->id();
+            $table->string('kode')->unique();
+            $table->unsignedBigInteger('harga_modal');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('barangs', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('kode_barangs');
     }
 };

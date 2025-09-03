@@ -3,37 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\KodeBarang; // Pastikan ini di-import
 use Illuminate\Http\Request;
 
 class BarangController extends Controller
 {
+    /**
+     * Menampilkan daftar barang dengan filter dan paginasi.
+     */
     public function index(Request $request)
     {
-        // Ambil input dari request, berikan nilai default
         $search = $request->input('search');
-        $perPage = $request->input('per_page', 10); // Default 10 data per halaman
+        $perPage = $request->input('per_page', 10);
 
-        // Mulai query dasar, urutkan dari yang terbaru
-        $query = Barang::latest();
+        // Sertakan relasi 'kodeBarang' untuk efisiensi query
+        $query = Barang::with('kodeBarang')->latest();
 
-        // Terapkan filter pencarian jika ada input
         if ($search) {
-            // Cari berdasarkan Nama Barang ATAU Kode Barang
+            // Cari berdasarkan nama barang ATAU kode dari tabel relasi
             $query->where(function ($q) use ($search) {
                 $q->where('nama_barang', 'like', "%{$search}%")
-                    ->orWhere('kode_barang', 'like', "%{$search}%");
+                    ->orWhereHas('kodeBarang', function ($subQuery) use ($search) {
+                        $subQuery->where('kode', 'like', "%{$search}%");
+                    });
             });
         }
 
-        // Lakukan paginasi setelah semua filter diterapkan
-        // Gunakan appends() agar parameter filter tetap ada saat pindah halaman
         $barangs = $query->paginate($perPage)->appends($request->query());
 
-        // Kirim data ke view
         return view('barang.index', [
             'barangs' => $barangs,
-            'search' => $search,   // Kirim kembali term pencarian untuk ditampilkan di form
-            'perPage' => $perPage, // Kirim kembali jumlah per halaman untuk dropdown
+            'search' => $search,
+            'perPage' => $perPage,
         ]);
     }
 
@@ -42,7 +43,9 @@ class BarangController extends Controller
      */
     public function create()
     {
-        return view('barang.create');
+        // Kirim daftar KodeBarang ke view
+        $kodeBarangs = KodeBarang::orderBy('kode')->get();
+        return view('barang.create', compact('kodeBarangs'));
     }
 
     /**
@@ -50,31 +53,20 @@ class BarangController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input
+        // Validasi disesuaikan, harga_beli dihilangkan
         $request->validate([
+            'kode_barang_id' => 'required|exists:kode_barangs,id',
             'nama_barang' => 'required|string|max:255',
-            'kode_barang' => 'nullable|string|max:50|unique:barangs',
             'satuan' => 'required|string|max:20',
-            'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'required|integer|min:0',
         ]);
 
-        // Buat record baru
+        // Langsung simpan data dari form, karena harga_beli tidak lagi disimpan
         Barang::create($request->all());
 
-        // Redirect ke halaman index dengan pesan sukses
         return redirect()->route('barang.index')
             ->with('success', 'Barang berhasil ditambahkan!');
-    }
-
-    /**
-     * Menampilkan detail satu barang (opsional, bisa dilewati jika tidak perlu).
-     */
-    public function show(Barang $barang)
-    {
-        // Jika Anda butuh halaman detail, buat view 'barang.show'
-        return view('barang.show', compact('barang'));
     }
 
     /**
@@ -82,7 +74,9 @@ class BarangController extends Controller
      */
     public function edit(Barang $barang)
     {
-        return view('barang.edit', compact('barang'));
+        // Kirim daftar KodeBarang ke view
+        $kodeBarangs = KodeBarang::orderBy('kode')->get();
+        return view('barang.edit', compact('barang', 'kodeBarangs'));
     }
 
     /**
@@ -90,21 +84,18 @@ class BarangController extends Controller
      */
     public function update(Request $request, Barang $barang)
     {
-        // Validasi input
+        // Validasi disesuaikan, harga_beli dihilangkan
         $request->validate([
+            'kode_barang_id' => 'required|exists:kode_barangs,id',
             'nama_barang' => 'required|string|max:255',
-            // Pastikan kode barang unik, tapi abaikan untuk item saat ini
-            'kode_barang' => 'nullable|string|max:50|unique:barangs,kode_barang,' . $barang->id,
             'satuan' => 'required|string|max:20',
-            'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'required|integer|min:0',
         ]);
 
-        // Update record
+        // Langsung update data dari form
         $barang->update($request->all());
 
-        // Redirect ke halaman index dengan pesan sukses
         return redirect()->route('barang.index')
             ->with('success', 'Data barang berhasil diperbarui!');
     }
@@ -114,9 +105,14 @@ class BarangController extends Controller
      */
     public function destroy(Barang $barang)
     {
+        // Proteksi agar barang yang ada di transaksi tidak bisa dihapus
+        if ($barang->details()->exists()) {
+            return redirect()->route('barang.index')
+                ->withErrors(['error' => 'Gagal! Barang "' . $barang->nama_barang . '" tidak dapat dihapus karena sudah memiliki riwayat transaksi.']);
+        }
+
         $barang->delete();
 
-        // Redirect ke halaman index dengan pesan sukses
         return redirect()->route('barang.index')
             ->with('success', 'Barang berhasil dihapus!');
     }

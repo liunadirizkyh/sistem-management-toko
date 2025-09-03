@@ -22,7 +22,11 @@
 
                     @role('admin')
                         <x-nav-link :href="route('barang.index')" :active="request()->routeIs('barang.*')">
-                            {{ __('Barang') }}
+                            {{ __('Data Barang') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('kode-barang.index')" :active="request()->routeIs('kode-barang.*')">
+                            {{ __('Kode Barang') }}
                         </x-nav-link>
                     @endrole
                 </div>
