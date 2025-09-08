@@ -4,7 +4,6 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Dashboard') }}
             </h2>
-
             <div class="absolute top-0 right-0 h-full flex items-center">
                 <button id="filter-toggle"
                     class="flex items-center gap-2 bg-white hover:bg-gray-100 text-black text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 transition">
@@ -43,7 +42,6 @@
                                     class="flex-1 text-center px-4 py-2 text-sm cursor-pointer border border-gray-300 font-medium text-gray-600 hover:bg-gray-50 peer-checked/daily:bg-blue-500 peer-checked/daily:text-white peer-checked/daily:border-blue-500">
                                     Harian
                                 </label>
-
                                 <input type="radio" name="filter_type" id="monthly" value="monthly"
                                     class="sr-only peer/monthly"
                                     {{ $selectedFilterType == 'monthly' ? 'checked' : '' }}>
@@ -51,7 +49,6 @@
                                     class="flex-1 text-center px-4 py-2 text-sm cursor-pointer border border-gray-300 font-medium text-gray-600 hover:bg-gray-50 peer-checked/monthly:bg-blue-500 peer-checked/monthly:text-white peer-checked/monthly:border-blue-500">
                                     Bulanan
                                 </label>
-
                                 <input type="radio" name="filter_type" id="yearly" value="yearly"
                                     class="sr-only peer/yearly"
                                     {{ $selectedFilterType == 'yearly' ? 'checked' : '' }}>
@@ -61,49 +58,32 @@
                                 </label>
                             </div>
                         </div>
-
                         <div id="day-selector">
                             <label for="day" class="block font-medium text-sm text-gray-700">Tanggal</label>
-                            <select name="day" id="day"
-                                class="mt-1 w-full rounded-md shadow-sm border-gray-300">
+                            <select name="day" id="day" class="mt-1 w-full rounded-md shadow-sm border-gray-300">
                                 @for ($i = 1; $i <= 31; $i++)
-                                    <option value="{{ $i }}"
-                                        {{ $selectedDay == $i ? 'selected' : '' }}>
-                                        {{ $i }}
-                                    </option>
+                                    <option value="{{ $i }}" {{ $selectedDay == $i ? 'selected' : '' }}>{{ $i }}</option>
                                 @endfor
                             </select>
                         </div>
-
                         <div id="month-selector">
                             <label for="month" class="block font-medium text-sm text-gray-700">Bulan</label>
-                            <select name="month" id="month"
-                                class="mt-1 w-full rounded-md shadow-sm border-gray-300">
+                            <select name="month" id="month" class="mt-1 w-full rounded-md shadow-sm border-gray-300">
                                 @for ($i = 1; $i <= 12; $i++)
-                                    <option value="{{ $i }}"
-                                        {{ $selectedMonth == $i ? 'selected' : '' }}>
-                                        {{ \Carbon\Carbon::create()->month($i)->translatedFormat('F') }}
-                                    </option>
+                                    <option value="{{ $i }}" {{ $selectedMonth == $i ? 'selected' : '' }}>{{ \Carbon\Carbon::create()->month($i)->translatedFormat('F') }}</option>
                                 @endfor
                             </select>
                         </div>
-
                         <div>
                             <label for="year" class="block font-medium text-sm text-gray-700">Tahun</label>
-                            <select name="year" id="year"
-                                class="mt-1 w-full rounded-md shadow-sm border-gray-300">
+                            <select name="year" id="year" class="mt-1 w-full rounded-md shadow-sm border-gray-300">
                                 @for ($i = now()->year; $i >= 2020; $i--)
-                                    <option value="{{ $i }}"
-                                        {{ $selectedYear == $i ? 'selected' : '' }}>
-                                        {{ $i }}
-                                    </option>
+                                    <option value="{{ $i }}" {{ $selectedYear == $i ? 'selected' : '' }}>{{ $i }}</option>
                                 @endfor
                             </select>
                         </div>
-
                         <div class="pt-4">
-                            <button type="submit"
-                                class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition">
+                            <button type="submit" class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition">
                                 Terapkan Filter
                             </button>
                         </div>
@@ -111,48 +91,71 @@
                 </div>
             </div>
 
-            <div class="mb-8">
-                <h3 class="text-xl font-semibold text-gray-700 mb-4">Laporan Penjualan</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <p class="text-sm font-medium text-gray-500 truncate">Pendapatan</p>
-                        <p class="mt-1 text-3xl font-semibold text-gray-900">
-                            Rp {{ number_format($pendapatan, 0, ',', '.') }}</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                
+                <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6 flex items-center gap-4">
+                    <div class="bg-blue-100 text-blue-600 p-3 rounded-lg">
+                        {{-- Icon baru: uang tunai --}}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                     </div>
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 truncate">Total Pendapatan</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">Rp {{ number_format($pendapatanTotal, 0, ',', '.') }}</p>
+                    </div>
+                </div>
+
+                <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6 flex items-center gap-4">
+                    <div class="bg-green-100 text-green-600 p-3 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    </div>
+                    <div>
                         <p class="text-sm font-medium text-gray-500 truncate">Jumlah Transaksi</p>
-                        <p class="mt-1 text-3xl font-semibold text-gray-900">
-                            {{ number_format($jumlahTransaksi) }}</p>
-                    </div>
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <p class="text-sm font-medium text-gray-500 truncate">Barang Terjual</p>
-                        <p class="mt-1 text-3xl font-semibold text-gray-900">
-                            {{ number_format($barangTerjual) }}</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ number_format($jumlahTransaksi) }}</p>
                     </div>
                 </div>
-            </div>
-
-            <div>
-                <h3 class="text-xl font-semibold text-gray-700 mb-4">Laporan Hutang & Pembayaran</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <p class="text-sm font-medium text-gray-500 truncate">Hutang Baru (Belum Lunas)</p>
-                        <p class="mt-1 text-3xl font-semibold text-gray-900">
-                            Rp {{ number_format($totalHutang, 0, ',', '.') }}</p>
+                
+                <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6 flex items-center gap-4">
+                    <div class="bg-red-100 text-red-600 p-3 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                     </div>
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <p class="text-sm font-medium text-gray-500 truncate">Hutang Nyicil Baru</p>
-                        <p class="mt-1 text-3xl font-semibold text-gray-900">
-                            Rp {{ number_format($sisaHutangNyicil, 0, ',', '.') }}</p>
-                    </div>
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <p class="text-sm font-medium text-gray-500 truncate">Hutang Terbayar</p>
-                        <p class="mt-1 text-3xl font-semibold text-gray-900">
-                            Rp {{ number_format($hutangDilunasiPeriodeIni, 0, ',', '.') }}</p>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 truncate">Total Hutang Supplier</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">Rp {{ number_format($totalHutang, 0, ',', '.') }}</p>
                     </div>
                 </div>
-            </div>
 
+                <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6">
+                    <p class="text-xs font-medium text-gray-400">Detail Pendapatan</p>
+                    <p class="text-sm font-medium text-gray-500 truncate mt-2">Cash</p>
+                    <p class="mt-1 text-2xl font-semibold text-gray-900">Rp {{ number_format($pendapatanCash, 0, ',', '.') }}</p>
+                </div>
+                
+                <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6">
+                    <p class="text-xs font-medium text-gray-400">Detail Pendapatan</p>
+                    <p class="text-sm font-medium text-gray-500 truncate mt-2">Transfer</p>
+                    <p class="mt-1 text-2xl font-semibold text-gray-900">Rp {{ number_format($pendapatanTransfer, 0, ',', '.') }}</p>
+                </div>
+
+                <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6">
+                    <h3 class="text-sm font-medium text-gray-500 mb-3">Top Pelanggan</h3>
+                    <div class="space-y-3">
+                        @forelse ($topPelanggan as $index => $pelanggan)
+                            <div class="flex items-center text-sm">
+                                {{-- <div class="font-bold text-gray-400 mr-3 w-5">#{{ $index + 1 }}</div> --}}
+                                <div class="flex-1">
+                                    <p class="font-semibold text-gray-700 truncate">{{ $pelanggan->nama_pelanggan }}</p>
+                                </div>
+                                <div class="text-gray-600 font-semibold">
+                                    Rp {{ number_format($pelanggan->total_pembelian, 0, ',', '.') }}
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-sm text-gray-500">Belum ada data pelanggan.</p>
+                        @endforelse
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
@@ -191,7 +194,7 @@
                 toggleSelectors();
                 filterTypeRadios.forEach(radio => {
                     radio.addEventListener('change', toggleSelectors);
-});
+                });
             });
         </script>
     @endpush

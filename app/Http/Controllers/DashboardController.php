@@ -20,7 +20,7 @@ class DashboardController extends Controller
         $filterType = $request->input('filter_type', 'daily');
         $date = Carbon::create($year, $month, $day);
 
-        // --- Query Penjualan (Berdasarkan tanggal transaksi) ---
+        // Buat satu query dasar untuk penjualan yang sudah difilter
         $queryPenjualan = Transaksi::query();
         switch ($filterType) {
             case 'monthly':
@@ -33,49 +33,44 @@ class DashboardController extends Controller
                 $queryPenjualan->whereDate('created_at', $date);
                 break;
         }
-        $pendapatan = $queryPenjualan->sum('total_harga');
-        $jumlahTransaksi = $queryPenjualan->count();
-        $transaksiIds = $queryPenjualan->pluck('id');
+
+        // Hitung Pendapatan Cash
+        $pendapatanCash = (clone $queryPenjualan)->where('metode_pembayaran', 'cash')->sum('total_harga');
+
+        // Hitung Pendapatan Transfer
+        $pendapatanTransfer = (clone $queryPenjualan)->where('metode_pembayaran', 'transfer')->sum('total_harga');
+
+        // Hitung Pendapatan Total (gabungan)
+        $pendapatanTotal = $pendapatanCash + $pendapatanTransfer;
+
+        // Hitung Jumlah Transaksi & Barang Terjual
+        $jumlahTransaksi = (clone $queryPenjualan)->count();
+        $transaksiIds = (clone $queryPenjualan)->pluck('id');
         $barangTerjual = DetailTransaksi::whereIn('transaksi_id', $transaksiIds)->sum('jumlah');
 
-        // --- PERBAIKAN UTAMA: Semua query hutang sekarang berdasarkan 'tanggal_datang' ---
-
-        // Buat satu query dasar untuk hutang yang difilter berdasarkan 'tanggal_datang'
-        $queryHutang = HutangSupplier::query();
-        switch ($filterType) {
-            case 'monthly':
-                $queryHutang->whereYear('tanggal_datang', $date->year)->whereMonth('tanggal_datang', $date->month);
-                break;
-            case 'yearly':
-                $queryHutang->whereYear('tanggal_datang', $date->year);
-                break;
-            default:
-                $queryHutang->whereDate('tanggal_datang', $date);
-                break;
-        }
-
-        // Hitung total hutang yang TERCATAT pada periode ini dan BELUM LUNAS
-        $totalHutang = (clone $queryHutang)
-            ->whereColumn('jumlah_dibayar', '<', 'harga_total')
+        // Hitung Total Hutang (keseluruhan, tidak terpengaruh filter)
+        $totalHutang = HutangSupplier::whereColumn('jumlah_dibayar', '<', 'harga_total')
             ->sum(DB::raw('harga_total - jumlah_dibayar'));
 
-        // Hitung sisa hutang NYICIL yang TERCATAT pada periode ini
-        $sisaHutangNyicil = (clone $queryHutang)
-            ->where('jumlah_dibayar', '>', 0)
-            ->whereColumn('jumlah_dibayar', '<', 'harga_total')
-            ->sum(DB::raw('harga_total - jumlah_dibayar'));
+        // Ambil Top 3 Pelanggan
+        $topPelanggan = (clone $queryPenjualan)
+            ->whereNotNull('nama_pelanggan')
+            ->where('nama_pelanggan', '!=', '')
+            ->select('nama_pelanggan', DB::raw('SUM(total_harga) as total_pembelian'))
+            ->groupBy('nama_pelanggan')
+            ->orderByDesc('total_pembelian')
+            ->limit(3)
+            ->get();
 
-        // Hitung jumlah yang sudah dibayarkan dari hutang yang TERCATAT pada periode ini
-        $hutangDilunasiPeriodeIni = (clone $queryHutang)->sum('jumlah_dibayar');
-
-
+        // Kirim semua data ke view
         return view('dashboard', [
-            'pendapatan' => $pendapatan,
+            'pendapatanCash' => $pendapatanCash,
+            'pendapatanTransfer' => $pendapatanTransfer,
+            'pendapatanTotal' => $pendapatanTotal,
             'jumlahTransaksi' => $jumlahTransaksi,
             'barangTerjual' => $barangTerjual,
             'totalHutang' => $totalHutang,
-            'sisaHutangNyicil' => $sisaHutangNyicil,
-            'hutangDilunasiPeriodeIni' => $hutangDilunasiPeriodeIni,
+            'topPelanggan' => $topPelanggan,
             'selectedYear' => $year,
             'selectedMonth' => $month,
             'selectedDay' => $day,
