@@ -5,7 +5,8 @@
                 {{ __('Manajemen Kode Barang') }}
             </h2>
             <div class="absolute top-0 right-0 h-full flex items-center">
-                <a href="{{ route('kode-barang.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <a href="{{ route('kode-barang.create') }}" 
+                    class="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 transition shadow-sm">
                     + Tambah Kode Barang
                 </a>
             </div>
@@ -32,7 +33,6 @@
                         </div>
                     @endif
 
-                    <!-- Form Filter & Pencarian -->
                     <div class="mb-4">
                         <form action="{{ route('kode-barang.index') }}" method="GET">
                             <div class="flex flex-col sm:flex-row gap-4">
@@ -55,13 +55,10 @@
                                     </div>
                                 </div>
                                 
-                                <div class="flex items-center space-x-2">
-                                    <button type="submit" class="w-full sm:w-auto bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 text-sm">
-                                        Cari
+                                <div class="flex items-center">
+                                    <button type="submit" class="w-full sm:w-auto bg-gray-800 text-white font-semibold py-2 px-6 rounded-md hover:bg-gray-700 text-sm transition-colors">
+                                        Search
                                     </button>
-                                    <a href="{{ route('kode-barang.index') }}" class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-md hover:bg-gray-300 text-sm">
-                                        Reset
-                                    </a>
                                 </div>
                             </div>
                         </form>

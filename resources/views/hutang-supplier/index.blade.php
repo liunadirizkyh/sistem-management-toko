@@ -5,7 +5,9 @@
                 {{ __('Hutang Supplier') }}
             </h2>
             <div class="absolute top-0 right-0 h-full flex items-center">
-                <a href="{{ route('hutang-supplier.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <!-- Gaya tombol disamakan -->
+                <a href="{{ route('hutang-supplier.create') }}" 
+                    class="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 transition shadow-sm">
                     + Tambah Hutang
                 </a>
             </div>
@@ -32,17 +34,16 @@
                         </div>
                     @endif
 
+                    <!-- Form Filter & Pencarian dengan gaya baru -->
                     <div class="mb-4">
                         <form action="{{ route('hutang-supplier.index') }}" method="GET">
                             <div class="flex flex-col sm:flex-row gap-4">
                                 <div class="flex items-center space-x-2">
                                     <label for="per_page" class="text-sm font-medium text-gray-700">Tampilkan:</label>
                                     <select name="per_page" id="per_page" class="rounded-md border-gray-300 shadow-sm text-sm" onchange="this.form.submit()">
-                                        <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
                                         <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
                                         <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
                                         <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
-                                        <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
                                     </select>
                                     <span class="text-sm text-gray-700">data</span>
                                 </div>
@@ -63,20 +64,17 @@
                                     </select>
                                 </div>
                                 
-                                <div class="flex items-center space-x-2">
-                                    <button type="submit" class="w-full sm:w-auto bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 text-sm">
-                                        Cari
+                                <div class="flex items-center">
+                                    <button type="submit" class="w-full sm:w-auto bg-gray-800 text-white font-semibold py-2 px-6 rounded-md hover:bg-gray-700 text-sm transition-colors">
+                                        Search
                                     </button>
-                                    <a href="{{ route('hutang-supplier.index') }}" class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-md hover:bg-gray-300 text-sm">
-                                        Reset
-                                    </a>
                                 </div>
                             </div>
                         </form>
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white table-auto">
+                        <table class="min-w-full bg-white">
                             <thead class="bg-gray-200 text-xs text-gray-600 uppercase">
                                 <tr>
                                     <th class="py-2 px-4 border-b text-left w-32">Tgl Datang</th>

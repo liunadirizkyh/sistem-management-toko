@@ -5,7 +5,8 @@
                 {{ __('Riwayat Transaksi') }}
             </h2>
             <div class="absolute top-0 right-0 h-full flex items-center">
-                <a href="{{ route('transaksi.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                <a href="{{ route('transaksi.create') }}" 
+                    class="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 transition shadow-sm">
                     + Buat Transaksi Baru
                 </a>
             </div>
@@ -54,13 +55,10 @@
                                     </div>
                                 </div>
                                 
-                                <div class="flex items-center space-x-2">
-                                    <button type="submit" class="w-full sm:w-auto bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 text-sm">
-                                        Cari
+                                <div class="flex items-center">
+                                    <button type="submit" class="w-full sm:w-auto bg-gray-800 text-white font-semibold py-2 px-6 rounded-md hover:bg-gray-700 text-sm transition-colors">
+                                        Search
                                     </button>
-                                    <a href="{{ route('transaksi.index') }}" class="w-full sm:w-auto text-center bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-md hover:bg-gray-300 text-sm">
-                                        Reset
-                                    </a>
                                 </div>
                             </div>
                         </form>
@@ -82,7 +80,7 @@
                                     <tr class="hover:bg-gray-100 cursor-pointer" onclick="window.location='{{ route('transaksi.edit', $transaksi) }}'">
                                         <td class="py-2 px-4 border-b align-middle font-mono text-sm">{{ $transaksi->nomor_transaksi }}</td>
                                         <td class="py-2 px-4 border-b align-middle">{{ $transaksi->created_at->format('d M Y, H:i') }}</td>
-                                        <td class="py-2 px-4 border-b align-middle">{{ $transaksi->nama_pelanggan ?? 'Umum' }}</td>
+                                        <td class="py-2 px-4 border-b align-middle font-semibold">{{ $transaksi->nama_pelanggan ?? 'Umum' }}</td>
                                         <td class="py-2 px-4 border-b align-middle text-right">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
                                         <td class="py-2 px-4 border-b align-middle text-center">
                                             @if($transaksi->metode_pembayaran == 'transfer' && $transaksi->via_bank)
