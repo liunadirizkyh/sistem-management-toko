@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('transaksis', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained(); // ID Kasir
+            $table->foreignId('user_id')->constrained();
+            $table->string('nama_pelanggan')->nullable();
             $table->string('nomor_transaksi')->unique();
             $table->unsignedBigInteger('total_harga');
             $table->unsignedBigInteger('uang_bayar');

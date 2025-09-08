@@ -29,14 +29,12 @@
                     <p class="text-gray-600">Telp: 0812-3456-7890</p>
                 </div>
 
-                <div class="gap-4 border-b pb-4 mb-4 text-sm">
-                    <div>
-                        <p><strong>No. Transaksi:</strong> {{ $transaksi->nomor_transaksi }}</p>
+                <div class="border-b pb-4 mb-4 text-sm space-y-1">
+                    <p><strong>No. Transaksi:</strong> {{ $transaksi->nomor_transaksi }}</p>
+                    <div class="flex justify-between">
                         <p><strong>Tanggal:</strong> {{ $transaksi->created_at->format('d M Y, H:i:s') }}</p>
+                        <p><strong>Pelanggan:</strong> {{ $transaksi->nama_pelanggan ?? 'Umum' }}</p>
                     </div>
-                    {{-- <div class="text-right">
-                        <p><strong>Kasir:</strong> {{ $transaksi->user->name }}</p>
-                    </div> --}}
                 </div>
 
                 <table class="w-full mb-6 text-sm">
@@ -51,7 +49,7 @@
                     <tbody>
                         @foreach ($transaksi->details as $item)
                         <tr class="border-b">
-                            <td class="py-2">{{ $item->barang->nama_barang }}</td>
+                            <td class="py-2">{{ $item->barang->nama_barang }} @if ($item->barang->trashed()) <span class="text-xs text-red-500">(Dihapus)</span> @endif</td>
                             <td class="py-2 text-center">{{ $item->jumlah }} {{ $item->barang->satuan }}</td>
                             <td class="py-2 text-right">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
                             <td class="py-2 text-right">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>

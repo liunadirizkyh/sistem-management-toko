@@ -12,21 +12,39 @@ use Illuminate\Support\Str;
 
 class TransaksiController extends Controller
 {
-    /**
-     * Menampilkan halaman kasir untuk membuat transaksi baru.
-     */
+    public function index(Request $request)
+    {
+        $search = $request->input('search');
+        $perPage = $request->input('per_page', 10);
+
+        $query = Transaksi::with('user')->latest();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nomor_transaksi', 'like', "%{$search}%")
+                    ->orWhere('nama_pelanggan', 'like', "%{$search}%");
+            });
+        }
+
+        $transaksis = $query->paginate($perPage)->appends($request->query());
+
+        return view('transaksi.index', [
+            'transaksis' => $transaksis,
+            'search' => $search,
+            'perPage' => $perPage,
+        ]);
+    }
+
     public function create()
     {
         $barangs = Barang::orderBy('nama_barang')->get();
         return view('transaksi.create', compact('barangs'));
     }
 
-    /**
-     * Menyimpan transaksi baru ke database.
-     */
     public function store(Request $request)
     {
         $request->validate([
+            'nama_pelanggan' => 'nullable|string|max:255',
             'items' => 'required|array|min:1',
             'items.*.barang_id' => 'required|exists:barangs,id',
             'items.*.jumlah' => 'required|integer|min:1',
@@ -40,6 +58,7 @@ class TransaksiController extends Controller
             DB::transaction(function () use ($request, &$transaksi) {
                 $transaksi = Transaksi::create([
                     'user_id' => Auth::id(),
+                    'nama_pelanggan' => $request->nama_pelanggan,
                     'nomor_transaksi' => 'TRX-' . time() . '-' . Str::upper(Str::random(4)),
                     'total_harga' => $request->total_harga,
                     'uang_bayar' => $request->uang_bayar,
@@ -68,38 +87,12 @@ class TransaksiController extends Controller
         return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil disimpan!');
     }
 
-    /**
-     * Menampilkan halaman riwayat transaksi.
-     */
-
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
-        $perPage = $request->input('per_page', 10);
-        $query = Transaksi::with('user')->latest();
-        if ($search) {
-            $query->where('nomor_transaksi', 'like', "%{$search}%");
-        }
-        $transaksis = $query->paginate($perPage)->appends($request->query());
-        return view('transaksi.index', [
-            'transaksis' => $transaksis,
-            'search' => $search,
-            'perPage' => $perPage,
-        ]);
-    }
-
-    /**
-     * Menampilkan detail satu transaksi (nota).
-     */
     public function show(Transaksi $transaksi)
     {
         $transaksi->load('details.barang');
         return view('transaksi.show', compact('transaksi'));
     }
 
-    /**
-     * Menampilkan form untuk mengedit transaksi (Hanya Admin).
-     */
     public function edit(Transaksi $transaksi)
     {
         $transaksi->load('details.barang');
@@ -107,12 +100,10 @@ class TransaksiController extends Controller
         return view('transaksi.edit', compact('transaksi', 'barangs'));
     }
 
-    /**
-     * Memperbarui transaksi (Hanya Admin).
-     */
     public function update(Request $request, Transaksi $transaksi)
     {
         $request->validate([
+            'nama_pelanggan' => 'nullable|string|max:255',
             'items' => 'required|array|min:1',
             'items.*.barang_id' => 'required|exists:barangs,id',
             'items.*.jumlah' => 'required|integer|min:1',
@@ -125,7 +116,6 @@ class TransaksiController extends Controller
             DB::transaction(function () use ($request, $transaksi) {
                 // Kembalikan stok lama
                 foreach ($transaksi->details as $detail) {
-                    // PERBAIKAN: Gunakan withTrashed() untuk menemukan barang yang sudah di-soft delete
                     $barangLama = Barang::withTrashed()->find($detail->barang_id);
                     if ($barangLama) {
                         $barangLama->increment('stok', $detail->jumlah);
@@ -134,6 +124,7 @@ class TransaksiController extends Controller
 
                 $transaksi->details()->delete();
                 $transaksi->update([
+                    'nama_pelanggan' => $request->nama_pelanggan,
                     'total_harga' => $request->total_harga,
                     'uang_bayar' => $request->uang_bayar,
                     'uang_kembali' => $request->uang_bayar - $request->total_harga,
@@ -160,15 +151,11 @@ class TransaksiController extends Controller
         return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil diperbarui!');
     }
 
-    /**
-     * Menghapus transaksi (Hanya Admin).
-     */
     public function destroy(Transaksi $transaksi)
     {
         try {
             DB::transaction(function () use ($transaksi) {
                 foreach ($transaksi->details as $detail) {
-                    // PERBAIKAN: Gunakan withTrashed() untuk menemukan barang yang sudah di-soft delete
                     $barang = Barang::withTrashed()->find($detail->barang_id);
                     if ($barang) {
                         $barang->increment('stok', $detail->jumlah);

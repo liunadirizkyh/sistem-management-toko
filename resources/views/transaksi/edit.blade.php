@@ -37,7 +37,12 @@
                         @csrf
                         @method('PUT')
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="md:col-span-2">
+                            <div class="md:col-span-2 space-y-4">
+                                <div>
+                                    <label for="nama_pelanggan" class="block font-medium text-sm text-gray-700">Nama Pelanggan (Opsional)</label>
+                                    <input type="text" name="nama_pelanggan" id="nama_pelanggan" value="{{ old('nama_pelanggan', $transaksi->nama_pelanggan) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" autocomplete="off">
+                                </div>
+
                                 <div class="bg-gray-100 p-4 rounded-lg">
                                     <label for="barang-search" class="block font-medium text-sm text-gray-700 mb-2">Tambah Barang ke Keranjang</label>
                                     <select id="barang-search" class="w-full">
@@ -52,7 +57,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="mt-4">
+                                <div>
                                     <h3 class="text-lg font-bold mb-2">Keranjang</h3>
                                     <div class="overflow-x-auto">
                                         <table class="min-w-full bg-white table-auto" id="cart-table">
@@ -115,7 +120,7 @@
                                                 </button>
                                             </div>
                                             <div class="flex items-center space-x-2">
-                                                <a href="{{ route('transaksi.index') }}" class="hover:text-gray-900 text-gray-600 font-bold py-2 px-4 rounded text-sm">Batal</a>
+                                                <a href="{{ route('transaksi.index') }}" class="hover:text-gray-900 text-gray-700 font-bold py-2 px-4 rounded text-sm">Batal</a>
                                                 <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm" form="transaction-form">
                                                     Update
                                                 </button>
@@ -313,7 +318,6 @@
                 return $('<input>').attr({ type: 'hidden', name: name, value: value });
             }
 
-            // Script untuk cetak nota langsung dari halaman edit
             $('.print-nota-btn').on('click', function(e) {
                 e.preventDefault();
                 const url = $(this).data('url');

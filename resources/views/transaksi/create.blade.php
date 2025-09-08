@@ -33,7 +33,12 @@
                     <form action="{{ route('transaksi.store') }}" method="POST" id="transaction-form">
                         @csrf
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="md:col-span-2">
+                            <div class="md:col-span-2 space-y-4">
+                                <div>
+                                    <label for="nama_pelanggan" class="block font-medium text-sm text-gray-700">Nama Pelanggan (Opsional)</label>
+                                    <input type="text" name="nama_pelanggan" id="nama_pelanggan" value="{{ old('nama_pelanggan') }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" autocomplete="off">
+                                </div>
+
                                 <div class="bg-gray-100 p-4 rounded-lg">
                                     <label for="barang-search" class="block font-medium text-sm text-gray-700 mb-2">Cari & Pilih Barang</label>
                                     <select id="barang-search" class="w-full">
@@ -48,7 +53,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="mt-4">
+                                <div>
                                     <h3 class="text-lg font-bold mb-2">Keranjang</h3>
                                     <div class="overflow-x-auto">
                                         <table class="min-w-full bg-white table-auto" id="cart-table">
@@ -87,7 +92,7 @@
 
                                     <div class="mt-auto pt-6">
                                         <div class="flex items-center justify-end space-x-2">
-                                            <a href="{{ route('transaksi.index') }}" class="text-gray-600 hover:text-gray-900 font-bold py-2 px-4 rounded text-sm">Batal</a>
+                                            <a href="{{ route('transaksi.index') }}" class="hover:text-gray-900 text-gray-700 font-bold py-2 px-4 rounded text-sm">Batal</a>
                                             <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
                                                 Simpan
                                             </button>

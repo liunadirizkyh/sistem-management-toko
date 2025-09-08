@@ -49,7 +49,7 @@
                                 </div>
                                 
                                 <div class="relative flex-grow">
-                                    <input type="search" name="search" id="search" placeholder="Cari No. Transaksi..." value="{{ $search ?? '' }}" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                    <input type="search" name="search" id="search" placeholder="Cari No. Transaksi/Pelanggan..." value="{{ $search ?? '' }}" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                     </div>
@@ -73,6 +73,7 @@
                                 <tr>
                                     <th class="py-2 px-4 border-b text-left">No. Transaksi</th>
                                     <th class="py-2 px-4 border-b text-left">Tanggal</th>
+                                    <th class="py-2 px-4 border-b text-left">Pelanggan</th>
                                     <th class="py-2 px-4 border-b text-right">Total Belanja</th>
                                     <th class="py-2 px-4 border-b text-right">Uang Bayar</th>
                                     <th class="py-2 px-4 border-b text-right">Uang Kembali</th>
@@ -83,13 +84,14 @@
                                     <tr class="hover:bg-gray-100 cursor-pointer" onclick="window.location='{{ route('transaksi.edit', $transaksi) }}'">
                                         <td class="py-2 px-4 border-b align-middle font-mono text-sm">{{ $transaksi->nomor_transaksi }}</td>
                                         <td class="py-2 px-4 border-b align-middle">{{ $transaksi->created_at->format('d M Y, H:i') }}</td>
+                                        <td class="py-2 px-4 border-b align-middle">{{ $transaksi->nama_pelanggan ?? 'Umum' }}</td>
                                         <td class="py-2 px-4 border-b align-middle text-right">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
                                         <td class="py-2 px-4 border-b align-middle text-right">Rp {{ number_format($transaksi->uang_bayar, 0, ',', '.') }}</td>
                                         <td class="py-2 px-4 border-b align-middle text-right">Rp {{ number_format($transaksi->uang_kembali, 0, ',', '.') }}</td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center py-4 text-gray-500">
+                                        <td colspan="6" class="text-center py-4 text-gray-500">
                                             Tidak ada transaksi yang cocok dengan pencarian Anda.
                                         </td>
                                     </tr>
