@@ -50,20 +50,36 @@ class TransaksiController extends Controller
             'items.*.jumlah' => 'required|integer|min:1',
             'items.*.harga_saat_transaksi' => 'required|numeric|min:0',
             'total_harga' => 'required|numeric|min:0',
-            'uang_bayar' => 'required|numeric|gte:total_harga',
+            'metode_pembayaran' => 'required|in:cash,transfer',
+            'uang_bayar' => 'required_if:metode_pembayaran,cash|nullable|numeric',
+            'via_bank' => 'required_if:metode_pembayaran,transfer|nullable|string|max:50',
         ]);
 
         $transaksi = null;
         try {
             DB::transaction(function () use ($request, &$transaksi) {
-                $transaksi = Transaksi::create([
+                $data = [
                     'user_id' => Auth::id(),
                     'nama_pelanggan' => $request->nama_pelanggan,
+                    'metode_pembayaran' => $request->metode_pembayaran,
                     'nomor_transaksi' => 'TRX-' . time() . '-' . Str::upper(Str::random(4)),
                     'total_harga' => $request->total_harga,
-                    'uang_bayar' => $request->uang_bayar,
-                    'uang_kembali' => $request->uang_bayar - $request->total_harga,
-                ]);
+                ];
+
+                if ($request->metode_pembayaran == 'transfer') {
+                    $data['uang_bayar'] = $request->total_harga;
+                    $data['uang_kembali'] = 0;
+                    $data['via_bank'] = $request->via_bank;
+                } else { // cash
+                    if ($request->uang_bayar < $request->total_harga) {
+                        throw new \Exception('Untuk metode cash, uang bayar tidak boleh kurang dari total harga.');
+                    }
+                    $data['uang_bayar'] = $request->uang_bayar;
+                    $data['uang_kembali'] = $request->uang_bayar - $request->total_harga;
+                    $data['via_bank'] = null;
+                }
+
+                $transaksi = Transaksi::create($data);
 
                 foreach ($request->items as $item) {
                     $barang = Barang::find($item['barang_id']);
@@ -109,12 +125,13 @@ class TransaksiController extends Controller
             'items.*.jumlah' => 'required|integer|min:1',
             'items.*.harga_saat_transaksi' => 'required|numeric|min:0',
             'total_harga' => 'required|numeric|min:0',
-            'uang_bayar' => 'required|numeric|gte:total_harga',
+            'metode_pembayaran' => 'required|in:cash,transfer',
+            'uang_bayar' => 'required_if:metode_pembayaran,cash|nullable|numeric',
+            'via_bank' => 'required_if:metode_pembayaran,transfer|nullable|string|max:50',
         ]);
 
         try {
             DB::transaction(function () use ($request, $transaksi) {
-                // Kembalikan stok lama
                 foreach ($transaksi->details as $detail) {
                     $barangLama = Barang::withTrashed()->find($detail->barang_id);
                     if ($barangLama) {
@@ -123,12 +140,27 @@ class TransaksiController extends Controller
                 }
 
                 $transaksi->details()->delete();
-                $transaksi->update([
+
+                $data = [
                     'nama_pelanggan' => $request->nama_pelanggan,
+                    'metode_pembayaran' => $request->metode_pembayaran,
                     'total_harga' => $request->total_harga,
-                    'uang_bayar' => $request->uang_bayar,
-                    'uang_kembali' => $request->uang_bayar - $request->total_harga,
-                ]);
+                ];
+
+                if ($request->metode_pembayaran == 'transfer') {
+                    $data['uang_bayar'] = $request->total_harga;
+                    $data['uang_kembali'] = 0;
+                    $data['via_bank'] = $request->via_bank;
+                } else { // cash
+                    if ($request->uang_bayar < $request->total_harga) {
+                        throw new \Exception('Untuk metode cash, uang bayar tidak boleh kurang dari total harga.');
+                    }
+                    $data['uang_bayar'] = $request->uang_bayar;
+                    $data['uang_kembali'] = $request->uang_bayar - $request->total_harga;
+                    $data['via_bank'] = null;
+                }
+
+                $transaksi->update($data);
 
                 foreach ($request->items as $item) {
                     $barang = Barang::find($item['barang_id']);

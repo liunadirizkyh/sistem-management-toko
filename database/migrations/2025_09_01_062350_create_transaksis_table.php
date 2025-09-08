@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->string('nama_pelanggan')->nullable();
+            $table->string('metode_pembayaran')->default('cash');
+            $table->string('via_bank')->nullable();
             $table->string('nomor_transaksi')->unique();
             $table->unsignedBigInteger('total_harga');
             $table->unsignedBigInteger('uang_bayar');

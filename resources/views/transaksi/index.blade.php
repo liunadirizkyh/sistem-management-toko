@@ -32,7 +32,6 @@
                         </div>
                     @endif
                     
-                    {{-- Form Filter & Pencarian --}}
                     <div class="mb-4">
                         <form action="{{ route('transaksi.index') }}" method="GET">
                             <div class="flex flex-col sm:flex-row gap-4">
@@ -75,8 +74,7 @@
                                     <th class="py-2 px-4 border-b text-left">Tanggal</th>
                                     <th class="py-2 px-4 border-b text-left">Pelanggan</th>
                                     <th class="py-2 px-4 border-b text-right">Total Belanja</th>
-                                    <th class="py-2 px-4 border-b text-right">Uang Bayar</th>
-                                    <th class="py-2 px-4 border-b text-right">Uang Kembali</th>
+                                    <th class="py-2 px-4 border-b text-center">Metode Pembayaran</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -86,12 +84,17 @@
                                         <td class="py-2 px-4 border-b align-middle">{{ $transaksi->created_at->format('d M Y, H:i') }}</td>
                                         <td class="py-2 px-4 border-b align-middle">{{ $transaksi->nama_pelanggan ?? 'Umum' }}</td>
                                         <td class="py-2 px-4 border-b align-middle text-right">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
-                                        <td class="py-2 px-4 border-b align-middle text-right">Rp {{ number_format($transaksi->uang_bayar, 0, ',', '.') }}</td>
-                                        <td class="py-2 px-4 border-b align-middle text-right">Rp {{ number_format($transaksi->uang_kembali, 0, ',', '.') }}</td>
+                                        <td class="py-2 px-4 border-b align-middle text-center">
+                                            @if($transaksi->metode_pembayaran == 'transfer' && $transaksi->via_bank)
+                                                {{ ucfirst($transaksi->metode_pembayaran) }} - {{ $transaksi->via_bank }}
+                                            @else
+                                                {{ ucfirst($transaksi->metode_pembayaran) }}
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-4 text-gray-500">
+                                        <td colspan="5" class="text-center py-4 text-gray-500">
                                             Tidak ada transaksi yang cocok dengan pencarian Anda.
                                         </td>
                                     </tr>

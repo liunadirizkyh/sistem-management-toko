@@ -30,10 +30,20 @@
                 </div>
 
                 <div class="border-b pb-4 mb-4 text-sm space-y-1">
-                    <p><strong>No. Transaksi:</strong> {{ $transaksi->nomor_transaksi }}</p>
+                    <div class="flex justify-between">
+                        <p><strong>No. Transaksi:</strong> {{ $transaksi->nomor_transaksi }}</p>
+                        <p><strong>Pelanggan:</strong> {{ $transaksi->nama_pelanggan ?? 'Umum' }}</p>
+                    </div>
                     <div class="flex justify-between">
                         <p><strong>Tanggal:</strong> {{ $transaksi->created_at->format('d M Y, H:i:s') }}</p>
-                        <p><strong>Pelanggan:</strong> {{ $transaksi->nama_pelanggan ?? 'Umum' }}</p>
+                        <p>
+                            <strong>Pembayaran:</strong> 
+                            @if($transaksi->metode_pembayaran == 'transfer')
+                                {{ ucfirst($transaksi->metode_pembayaran) }} - {{ $transaksi->via_bank }}
+                            @else
+                                {{ ucfirst($transaksi->metode_pembayaran) }}
+                            @endif
+                        </p>
                     </div>
                 </div>
 
@@ -86,30 +96,11 @@
     
     <style>
         @media print {
-            body {
-                background-color: #fff;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .py-12 {
-                padding: 0;
-            }
-            .max-w-3xl {
-                max-width: 100%;
-                padding: 0;
-                margin: 0;
-            }
-            #nota {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                box-shadow: none;
-                border: none;
-                margin: 0;
-                padding: 0;
-            }
+            body { background-color: #fff; }
+            .no-print { display: none !important; }
+            .py-12 { padding: 0; }
+            .max-w-3xl { max-width: 100%; padding: 0; margin: 0; }
+            #nota { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border: none; margin: 0; padding: 0; }
         }
     </style>
     

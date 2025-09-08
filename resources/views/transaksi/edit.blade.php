@@ -42,7 +42,6 @@
                                     <label for="nama_pelanggan" class="block font-medium text-sm text-gray-700">Nama Pelanggan (Opsional)</label>
                                     <input type="text" name="nama_pelanggan" id="nama_pelanggan" value="{{ old('nama_pelanggan', $transaksi->nama_pelanggan) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" autocomplete="off">
                                 </div>
-
                                 <div class="bg-gray-100 p-4 rounded-lg">
                                     <label for="barang-search" class="block font-medium text-sm text-gray-700 mb-2">Tambah Barang ke Keranjang</label>
                                     <select id="barang-search" class="w-full">
@@ -102,14 +101,28 @@
                                     <input type="hidden" name="total_harga" id="total_harga_input" value="{{ old('total_harga', $transaksi->total_harga) }}">
                                     
                                     <div class="mb-4">
-                                        <label for="uang_bayar_formatted" class="block font-medium text-sm text-gray-700">Uang Bayar</label>
-                                        <input type="text" id="uang_bayar_formatted" inputmode="numeric" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ number_format(old('uang_bayar', $transaksi->uang_bayar), 0, ',', '.') }}" required>
-                                        <input type="hidden" name="uang_bayar" id="uang_bayar" value="{{ old('uang_bayar', $transaksi->uang_bayar) }}">
+                                        <label for="metode_pembayaran" class="block font-medium text-sm text-gray-700">Metode Pembayaran</label>
+                                        <select name="metode_pembayaran" id="metode_pembayaran" class="block mt-1 w-full rounded-md shadow-sm border-gray-300">
+                                            <option value="cash" {{ old('metode_pembayaran', $transaksi->metode_pembayaran) == 'cash' ? 'selected' : '' }}>Cash</option>
+                                            <option value="transfer" {{ old('metode_pembayaran', $transaksi->metode_pembayaran) == 'transfer' ? 'selected' : '' }}>Transfer</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div id="via-bank-container" class="mb-4" style="display: none;">
+                                        <label for="via_bank" class="block font-medium text-sm text-gray-700">Via Bank</label>
+                                        <input type="text" name="via_bank" id="via_bank" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ old('via_bank', $transaksi->via_bank) }}">
                                     </div>
 
-                                    <div>
-                                        <label class="block font-medium text-sm text-gray-700">Uang Kembali</label>
-                                        <div class="mt-1 p-2 bg-gray-200 rounded-md font-bold text-lg" id="uang-kembali">Rp 0</div>
+                                    <div id="cash-payment-container" class="space-y-4">
+                                        <div>
+                                            <label for="uang_bayar_formatted" class="block font-medium text-sm text-gray-700">Uang Bayar</label>
+                                            <input type="text" id="uang_bayar_formatted" inputmode="numeric" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ number_format(old('uang_bayar', $transaksi->uang_bayar), 0, ',', '.') }}">
+                                            <input type="hidden" name="uang_bayar" id="uang_bayar" value="{{ old('uang_bayar', $transaksi->uang_bayar) }}">
+                                        </div>
+                                        <div>
+                                            <label class="block font-medium text-sm text-gray-700">Uang Kembali</label>
+                                            <div class="mt-1 p-2 bg-gray-200 rounded-md font-bold text-lg" id="uang-kembali">Rp 0</div>
+                                        </div>
                                     </div>
 
                                     <div class="mt-auto pt-6 border-t">
@@ -154,17 +167,39 @@
             const cartTableBody = $('#cart-table tbody');
             const grandTotalEl = $('#grand-total');
             const totalHargaInput = $('#total_harga_input');
-            const uangBayarInput = $('#uang_bayar');
-            const uangBayarFormattedInput = $('#uang_bayar_formatted');
-            const uangKembaliEl = $('#uang-kembali');
             const transactionForm = $('#transaction-form');
             let cartItems = {};
+
+            const paymentMethodSelect = $('#metode_pembayaran');
+            const cashPaymentContainer = $('#cash-payment-container');
+            const viaBankContainer = $('#via-bank-container');
+            const uangBayarInput = $('#uang_bayar');
+            const uangBayarFormattedInput = $('#uang_bayar_formatted');
+            const viaBankInput = $('#via_bank');
+            const uangKembaliEl = $('#uang-kembali');
 
             $('#cart-table tbody tr').each(function() {
                 const row = $(this);
                 const id = row.data('id');
                 cartItems[id] = { row: row };
             });
+
+            function togglePaymentFields() {
+                const selectedMethod = paymentMethodSelect.val();
+                if (selectedMethod === 'transfer') {
+                    cashPaymentContainer.hide();
+                    viaBankContainer.show();
+                    uangBayarFormattedInput.prop('required', false);
+                    viaBankInput.prop('required', true);
+                } else {
+                    cashPaymentContainer.show();
+                    viaBankContainer.hide();
+                    uangBayarFormattedInput.prop('required', true);
+                    viaBankInput.prop('required', false);
+                }
+            }
+            togglePaymentFields();
+            paymentMethodSelect.on('change', togglePaymentFields);
 
             function formatRupiah(number) {
                 return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
