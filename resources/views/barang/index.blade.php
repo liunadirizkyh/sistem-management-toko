@@ -80,9 +80,9 @@
                                 @forelse ($barangs as $barang)
                                     <tr class="hover:bg-gray-100 cursor-pointer" onclick="window.location='{{ route('barang.edit', $barang->id) }}'">
                                         <td class="py-2 px-4 border-b align-middle">{{ optional($barang->kodeBarang)->kode ?? '-' }}</td>
-                                        <td class="py-2 px-4 border-b align-middle">{{ $barang->nama_barang }}</td>
+                                        <td class="py-2 px-4 border-b align-middle font-bold">{{ $barang->nama_barang }}</td>
                                         <td class="py-2 px-4 border-b text-center align-middle">{{ $barang->satuan }}</td>
-                                        <td class="py-2 px-4 border-b text-center align-middle">{{ $barang->stok }}</td>
+                                        <td class="py-2 px-4 border-b text-center align-middle font-bold">{{ $barang->stok }}</td>
                                         <td class="py-2 px-4 border-b text-right align-middle">Rp {{ number_format(optional($barang->kodeBarang)->harga_modal, 0, ',', '.') }}</td>
                                         <td class="py-2 px-4 border-b text-right align-middle">Rp {{ number_format($barang->harga_jual, 0, ',', '.') }}</td>
                                     </tr>
