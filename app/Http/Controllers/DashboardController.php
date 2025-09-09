@@ -34,32 +34,42 @@ class DashboardController extends Controller
                 break;
         }
 
-        // Hitung Pendapatan Cash
+        // Hitung metrik penjualan
         $pendapatanCash = (clone $queryPenjualan)->where('metode_pembayaran', 'cash')->sum('total_harga');
-
-        // Hitung Pendapatan Transfer
         $pendapatanTransfer = (clone $queryPenjualan)->where('metode_pembayaran', 'transfer')->sum('total_harga');
-
-        // Hitung Pendapatan Total (gabungan)
         $pendapatanTotal = $pendapatanCash + $pendapatanTransfer;
-
-        // Hitung Jumlah Transaksi & Barang Terjual
         $jumlahTransaksi = (clone $queryPenjualan)->count();
         $transaksiIds = (clone $queryPenjualan)->pluck('id');
         $barangTerjual = DetailTransaksi::whereIn('transaksi_id', $transaksiIds)->sum('jumlah');
 
-        // Hitung Total Hutang (keseluruhan, tidak terpengaruh filter)
-        $totalHutang = HutangSupplier::whereColumn('jumlah_dibayar', '<', 'harga_total')
+        // PERBAIKAN: Hitung Total Hutang yang TERCATAT pada periode filter
+        $queryHutang = HutangSupplier::query();
+        switch ($filterType) {
+            case 'monthly':
+                $queryHutang->whereYear('tanggal_datang', $date->year)->whereMonth('tanggal_datang', $date->month);
+                break;
+            case 'yearly':
+                $queryHutang->whereYear('tanggal_datang', $date->year);
+                break;
+            default: // daily
+                $queryHutang->whereDate('tanggal_datang', $date);
+                break;
+        }
+
+        // Dari hutang yang masuk di periode tsb, hitung berapa total yang belum lunas.
+        $totalHutang = (clone $queryHutang)
+            ->whereColumn('jumlah_dibayar', '<', 'harga_total')
             ->sum(DB::raw('harga_total - jumlah_dibayar'));
 
-        // Ambil Top 3 Pelanggan
+
+        // Ambil Top 3 Pelanggan (logika ini sudah benar karena menggunakan query penjualan yang terfilter)
         $topPelanggan = (clone $queryPenjualan)
             ->whereNotNull('nama_pelanggan')
             ->where('nama_pelanggan', '!=', '')
             ->select('nama_pelanggan', DB::raw('SUM(total_harga) as total_pembelian'))
             ->groupBy('nama_pelanggan')
             ->orderByDesc('total_pembelian')
-            ->limit(3)
+            ->limit(2)
             ->get();
 
         // Kirim semua data ke view
