@@ -41,9 +41,11 @@
                                 <div class="flex items-center space-x-2">
                                     <label for="per_page" class="text-sm font-medium text-gray-700">Tampilkan:</label>
                                     <select name="per_page" id="per_page" class="rounded-md border-gray-300 shadow-sm text-sm" onchange="this.form.submit()">
+                                        <option value="5" {{ $perPage == 5 ? 'selected' : '' }}>5</option>
                                         <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
                                         <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
                                         <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                                        <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
                                     </select>
                                     <span class="text-sm text-gray-700">data</span>
                                 </div>
