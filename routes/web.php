@@ -6,7 +6,23 @@ use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HutangSupplierController;
 use App\Http\Controllers\KodeBarangController;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+
+// Route::get('/make-admin', function () {
+//     // Bikin user baru
+//     $user = User::create([
+//         'name' => 'Super Admin',
+//         'email' => 'admin@example.com',
+//         'password' => Hash::make('password123'),
+//     ]);
+
+//     // Tambahkan role admin (kalau pakai Spatie Permission)
+//     $user->assignRole('admin');
+
+//     return "User admin berhasil dibuat dengan email: {$user->email} dan password: password123";
+// });
 
 // Rute untuk halaman utama, langsung ke login
 Route::get('/', function () {
@@ -14,12 +30,12 @@ Route::get('/', function () {
 });
 
 // Semua rute yang memerlukan login dikelompokkan di sini
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     // --- Rute Umum (Semua Role Login) ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // --- Rute untuk Kasir & Admin ---
     Route::middleware('role:admin|kasir')->group(function () {
