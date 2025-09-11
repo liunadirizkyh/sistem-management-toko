@@ -21,73 +21,79 @@
     </x-slot>
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div id="nota" class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-8">
+            <div id="nota" class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-8 relative">
                 
-                <div class="text-center mb-8">
-                    <h1 class="text-2xl font-bold">Sumber Rezeki</h1>
-                    <p class="text-gray-600">Jl. Mohnoh Nur No.204, Leuwimekar, Kec. Leuwiliang, Kabupaten Bogor</p>
-                    <p class="text-gray-600">Telp: 0812-3456-7890</p>
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 print:opacity-20 z-0">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo Toko" class="w-1/2 h-auto object-contain">
                 </div>
 
-                <div class="border-b pb-4 mb-4 text-sm space-y-1">
-                    <div class="flex justify-between">
-                        <p><strong>No. Transaksi:</strong> {{ $transaksi->nomor_transaksi }}</p>
-                        <p><strong>Pelanggan:</strong> {{ $transaksi->nama_pelanggan ?? 'Umum' }}</p>
+                <div class="relative z-10">
+                    <div class="text-center mb-8">
+                        <h1 class="text-2xl font-bold">Sumber Rezeki</h1>
+                        <p class="text-gray-600">Jl. Mohnoh Nur No.204, Leuwimekar, Kec. Leuwiliang, Kabupaten Bogor</p>
+                        <p class="text-gray-600">Telp: 0812-3456-7890</p>
                     </div>
-                    <div class="flex justify-between">
-                        <p><strong>Tanggal:</strong> {{ $transaksi->created_at->format('d M Y, H:i:s') }}</p>
-                        <p>
-                            <strong>Pembayaran:</strong> 
-                            @if($transaksi->metode_pembayaran == 'transfer')
-                                {{ ucfirst($transaksi->metode_pembayaran) }} - {{ $transaksi->via_bank }}
-                            @else
-                                {{ ucfirst($transaksi->metode_pembayaran) }}
-                            @endif
-                        </p>
-                    </div>
-                </div>
 
-                <table class="w-full mb-6 text-sm">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="py-2 text-left font-semibold">Nama Barang</th>
-                            <th class="py-2 text-center font-semibold">Jumlah</th>
-                            <th class="py-2 text-right font-semibold">Harga Satuan</th>
-                            <th class="py-2 text-right font-semibold">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($transaksi->details as $item)
-                        <tr class="border-b">
-                            <td class="py-2">{{ $item->barang->nama_barang }} @if ($item->barang->trashed()) <span class="text-xs text-red-500">(Dihapus)</span> @endif</td>
-                            <td class="py-2 text-center">{{ $item->jumlah }} {{ $item->barang->satuan }}</td>
-                            <td class="py-2 text-right">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
-                            <td class="py-2 text-right">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                
-                <div class="flex justify-end">
-                    <div class="w-full sm:w-1/2 text-right">
-                        <div class="flex justify-between mb-1">
-                            <span class="font-semibold">Total Belanja:</span>
-                            <span class="font-bold text-lg">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</span>
+                    <div class="border-b pb-4 mb-4 text-sm space-y-1">
+                        <div class="flex justify-between">
+                            <p><strong>No. Transaksi:</strong> {{ $transaksi->nomor_transaksi }}</p>
+                            <p><strong>Pelanggan:</strong> {{ $transaksi->nama_pelanggan ?? 'Umum' }}</p>
                         </div>
-                        <div class="flex justify-between mb-1 text-gray-600">
-                            <span>Bayar:</span>
-                            <span>Rp {{ number_format($transaksi->uang_bayar, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="flex justify-between pt-1 border-t">
-                            <span class="font-semibold">Kembali:</span>
-                            <span class="font-semibold">Rp {{ number_format($transaksi->uang_kembali, 0, ',', '.') }}</span>
+                        <div class="flex justify-between">
+                            <p><strong>Tanggal:</strong> {{ $transaksi->created_at->format('d M Y, H:i:s') }}</p>
+                            <p>
+                                <strong>Pembayaran:</strong> 
+                                @if($transaksi->metode_pembayaran == 'transfer')
+                                    {{ ucfirst($transaksi->metode_pembayaran) }} - {{ $transaksi->via_bank }}
+                                @else
+                                    {{ ucfirst($transaksi->metode_pembayaran) }}
+                                @endif
+                            </p>
                         </div>
                     </div>
-                </div>
 
-                <div class="text-center mt-10 pt-4 border-t text-sm text-gray-500">
-                    <p>Terima kasih telah berbelanja!</p>
-                    <p>Barang yang sudah dibeli tidak dapat dikembalikan.</p>
+                    <table class="w-full mb-6 text-sm">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="py-2 text-left font-semibold">Nama Barang</th>
+                                <th class="py-2 text-center font-semibold">Jumlah</th>
+                                <th class="py-2 text-right font-semibold">Harga Satuan</th>
+                                <th class="py-2 text-right font-semibold">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($transaksi->details as $item)
+                            <tr class="border-b">
+                                <td class="py-2">{{ $item->barang->nama_barang }} @if ($item->barang->trashed()) <span class="text-xs text-red-500">(Dihapus)</span> @endif</td>
+                                <td class="py-2 text-center">{{ $item->jumlah }} {{ $item->barang->satuan }}</td>
+                                <td class="py-2 text-right">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                                <td class="py-2 text-right">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    
+                    <div class="flex justify-end">
+                        <div class="w-full sm:w-1/2 text-right">
+                            <div class="flex justify-between mb-1">
+                                <span class="font-semibold">Total Belanja:</span>
+                                <span class="font-bold text-lg">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between mb-1 text-gray-600">
+                                <span>Bayar:</span>
+                                <span>Rp {{ number_format($transaksi->uang_bayar, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between pt-1 border-t">
+                                <span class="font-semibold">Kembali:</span>
+                                <span class="font-semibold">Rp {{ number_format($transaksi->uang_kembali, 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-10 pt-4 border-t text-sm text-gray-500">
+                        <p>Terima kasih telah berbelanja!</p>
+                        <p>Barang yang sudah dibeli tidak dapat dikembalikan.</p>
+                    </div>
                 </div>
                 
             </div>
