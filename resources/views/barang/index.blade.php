@@ -4,12 +4,15 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Manajemen Barang') }}
             </h2>
+            
+            @role('admin')
             <div class="absolute top-0 right-0 h-full flex items-center">
                 <a href="{{ route('barang.create') }}" 
                     class="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 transition shadow-sm">
                     + Tambah Barang
                 </a>
             </div>
+            @endrole
         </div>
     </x-slot>
 
