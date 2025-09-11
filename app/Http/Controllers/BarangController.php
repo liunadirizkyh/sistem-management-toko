@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
-use App\Models\KodeBarang; // Pastikan ini di-import
+use App\Models\KodeBarang;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class BarangController extends Controller
 {
-    /**
-     * Menampilkan daftar barang dengan filter dan paginasi.
-     */
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -38,22 +36,14 @@ class BarangController extends Controller
         ]);
     }
 
-    /**
-     * Menampilkan form untuk menambah barang baru.
-     */
     public function create()
     {
-        // Kirim daftar KodeBarang ke view
         $kodeBarangs = KodeBarang::orderBy('kode')->get();
         return view('barang.create', compact('kodeBarangs'));
     }
 
-    /**
-     * Menyimpan barang baru ke database.
-     */
     public function store(Request $request)
     {
-        // Validasi disesuaikan, harga_beli dihilangkan
         $request->validate([
             'kode_barang_id' => 'required|exists:kode_barangs,id',
             'nama_barang' => 'required|string|max:255',
@@ -62,29 +52,20 @@ class BarangController extends Controller
             'stok' => 'required|integer|min:0',
         ]);
 
-        // Langsung simpan data dari form, karena harga_beli tidak lagi disimpan
         Barang::create($request->all());
 
         return redirect()->route('barang.index')
             ->with('success', 'Barang berhasil ditambahkan!');
     }
 
-    /**
-     * Menampilkan form untuk mengedit data barang.
-     */
     public function edit(Barang $barang)
     {
-        // Kirim daftar KodeBarang ke view
         $kodeBarangs = KodeBarang::orderBy('kode')->get();
         return view('barang.edit', compact('barang', 'kodeBarangs'));
     }
 
-    /**
-     * Memperbarui data barang di database.
-     */
     public function update(Request $request, Barang $barang)
     {
-        // Validasi disesuaikan, harga_beli dihilangkan
         $request->validate([
             'kode_barang_id' => 'required|exists:kode_barangs,id',
             'nama_barang' => 'required|string|max:255',
@@ -93,19 +74,14 @@ class BarangController extends Controller
             'stok' => 'required|integer|min:0',
         ]);
 
-        // Langsung update data dari form
         $barang->update($request->all());
 
         return redirect()->route('barang.index')
             ->with('success', 'Data barang berhasil diperbarui!');
     }
 
-    /**
-     * Menghapus data barang dari database.
-     */
     public function destroy(Barang $barang)
     {
-        // Proteksi agar barang yang ada di transaksi tidak bisa dihapus
         if ($barang->details()->exists()) {
             return redirect()->route('barang.index')
                 ->withErrors(['error' => 'Gagal! Barang "' . $barang->nama_barang . '" tidak dapat dihapus karena sudah memiliki riwayat transaksi.']);
@@ -115,5 +91,35 @@ class BarangController extends Controller
 
         return redirect()->route('barang.index')
             ->with('success', 'Barang berhasil dihapus!');
+    }
+
+    public function search(Request $request): JsonResponse
+    {
+        $term = $request->input('term', '');
+
+        $barangs = Barang::with('kodeBarang')
+            ->where(function ($query) use ($term) {
+                $query->where('nama_barang', 'like', "%{$term}%")
+                    ->orWhereHas('kodeBarang', function ($subQuery) use ($term) {
+                        $subQuery->where('kode', 'like', "%{$term}%");
+                    });
+            })
+            ->where('stok', '>', 0)
+            ->limit(20)
+            ->get();
+
+        $results = $barangs->map(function ($barang) {
+            return [
+                'id' => $barang->id,
+                'text' => "{$barang->nama_barang} (Stok: {$barang->stok})",
+                'data' => [
+                    'nama' => $barang->nama_barang,
+                    'harga' => $barang->harga_jual,
+                    'stok' => $barang->stok,
+                ]
+            ];
+        });
+
+        return response()->json($results);
     }
 }

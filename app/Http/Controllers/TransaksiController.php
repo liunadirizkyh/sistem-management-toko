@@ -111,9 +111,13 @@ class TransaksiController extends Controller
 
     public function edit(Transaksi $transaksi)
     {
-        $transaksi->load('details.barang');
-        $barangs = Barang::orderBy('nama_barang')->get();
-        return view('transaksi.edit', compact('transaksi', 'barangs'));
+        $transaksi->load(['details' => function ($query) {
+            $query->with(['barang' => function ($subQuery) {
+                $subQuery->withTrashed();
+            }]);
+        }]);
+
+        return view('transaksi.edit', compact('transaksi'));
     }
 
     public function update(Request $request, Transaksi $transaksi)

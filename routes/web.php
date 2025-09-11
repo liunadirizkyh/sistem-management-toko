@@ -51,6 +51,8 @@ Route::middleware(['auth'])->group(function () {
         // Rute Barang (Hanya Lihat)
         Route::get('/barang', [BarangController::class, 'index'])->name('barang.index');
         Route::get('/barang/{barang}/edit', [BarangController::class, 'edit'])->name('barang.edit');
+
+        Route::get('/barang/search', [BarangController::class, 'search'])->name('barang.search');
     });
 
     // --- Rute Khusus Admin ---

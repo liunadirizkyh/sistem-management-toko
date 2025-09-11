@@ -45,17 +45,8 @@
                                 <div class="lg:col-span-2 space-y-6">
                                     <div>
                                         <label for="barang-search" class="block font-medium text-sm text-gray-700 mb-1">Pilih Barang</label>
-                                        <select id="barang-search" class="w-full disabled:bg-gray-100 disabled:cursor-not-allowed">
-                                            <option></option>
-                                            @foreach($barangs as $barang)
-                                                <option value="{{ $barang->id }}" 
-                                                        data-nama="{{ $barang->nama_barang }}" 
-                                                        data-harga="{{ $barang->harga_jual }}"
-                                                        data-stok="{{ $barang->stok }}">
-                                                    {{ $barang->nama_barang }} (Stok: {{ $barang->stok }})
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <!-- Dropdown sekarang kosong, akan diisi oleh AJAX -->
+                                        <select id="barang-search" class="w-full disabled:bg-gray-200 disabled:cursor-not-allowed"></select>
                                     </div>
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-800 mb-2">Keranjang</h3>
@@ -75,9 +66,9 @@
                                                         @foreach($transaksi->details as $item)
                                                         <tr data-id="{{ $item->barang_id }}">
                                                             <td class="p-2 border-b align-middle">{{ $item->barang->nama_barang }} @if ($item->barang->trashed()) <span class="text-xs text-red-500">(Dihapus)</span> @endif</td>
-                                                            <td class="p-2 border-b align-middle"><input type="number" class="jumlah-input w-full rounded-md border-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed" value="{{ $item->jumlah }}" min="1"></td>
+                                                            <td class="p-2 border-b align-middle"><input type="number" class="jumlah-input w-full rounded-md border-gray-300 disabled:bg-gray-100" value="{{ $item->jumlah }}" min="1"></td>
                                                             <td class="p-2 border-b align-middle">
-                                                                <input type="text" class="harga-formatted w-full rounded-md border-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed" value="{{ number_format($item->harga_satuan, 0, ',', '.') }}" min="0">
+                                                                <input type="text" class="harga-formatted w-full rounded-md border-gray-300 disabled:bg-gray-100" value="{{ number_format($item->harga_satuan, 0, ',', '.') }}" min="0">
                                                                 <input type="hidden" class="harga-input" value="{{ $item->harga_satuan }}">
                                                             </td>
                                                             <td class="p-2 border-b font-semibold subtotal text-right align-middle">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
@@ -96,11 +87,11 @@
                                         <h3 class="text-xl font-bold mb-4 text-gray-800">Ringkasan Belanja</h3>
                                         <div class="mb-4">
                                             <label for="nama_pelanggan" class="block font-medium text-sm text-gray-700">Nama Pelanggan</label>
-                                            <input type="text" name="nama_pelanggan" id="nama_pelanggan" value="{{ old('nama_pelanggan', $transaksi->nama_pelanggan) }}" class="block mt-1 w-full rounded-lg shadow-sm border-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed" placeholder="Opsional" autocomplete="off">
+                                            <input type="text" name="nama_pelanggan" id="nama_pelanggan" value="{{ old('nama_pelanggan', $transaksi->nama_pelanggan) }}" class="block mt-1 w-full rounded-lg shadow-sm border-gray-300 disabled:bg-gray-100" placeholder="Opsional" autocomplete="off">
                                         </div>
                                         <div class="mb-4">
                                             <label for="metode_pembayaran" class="block font-medium text-sm text-gray-700">Metode Pembayaran</label>
-                                            <select name="metode_pembayaran" id="metode_pembayaran" class="block mt-1 w-full rounded-lg shadow-sm border-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed">
+                                            <select name="metode_pembayaran" id="metode_pembayaran" class="block mt-1 w-full rounded-lg shadow-sm border-gray-300 disabled:bg-gray-100">
                                                 <option value="cash" {{ old('metode_pembayaran', $transaksi->metode_pembayaran) == 'cash' ? 'selected' : '' }}>Cash</option>
                                                 <option value="transfer" {{ old('metode_pembayaran', $transaksi->metode_pembayaran) == 'transfer' ? 'selected' : '' }}>Transfer</option>
                                             </select>
@@ -108,11 +99,11 @@
                                         <div class="relative min-h-[88px]">
                                             <div id="via-bank-container" class="mb-4 absolute w-full" style="display: none;">
                                                 <label for="via_bank" class="block font-medium text-sm text-gray-700">Via Bank</label>
-                                                <input type="text" name="via_bank" id="via_bank" class="block mt-1 w-full rounded-lg shadow-sm border-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed" value="{{ old('via_bank', $transaksi->via_bank) }}">
+                                                <input type="text" name="via_bank" id="via_bank" class="block mt-1 w-full rounded-lg shadow-sm border-gray-300 disabled:bg-gray-100" value="{{ old('via_bank', $transaksi->via_bank) }}">
                                             </div>
                                             <div id="cash-payment-container" class="absolute w-full">
                                                 <label for="uang_bayar_formatted" class="block font-medium text-sm text-gray-700">Uang Bayar</label>
-                                                <input type="text" id="uang_bayar_formatted" inputmode="numeric" class="block mt-1 w-full rounded-lg shadow-sm border-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed" value="{{ number_format(old('uang_bayar', $transaksi->uang_bayar), 0, ',', '.') }}">
+                                                <input type="text" id="uang_bayar_formatted" inputmode="numeric" class="block mt-1 w-full rounded-lg shadow-sm border-gray-300 disabled:bg-gray-100" value="{{ number_format(old('uang_bayar', $transaksi->uang_bayar), 0, ',', '.') }}">
                                                 <input type="hidden" name="uang_bayar" id="uang_bayar" value="{{ old('uang_bayar', $transaksi->uang_bayar) }}">
                                             </div>
                                         </div>
@@ -170,14 +161,25 @@
     @push('scripts')
     <script>
         $(document).ready(function() {
-            $('#barang-search').select2({ 
-                placeholder: "-- Cari Barang --",
+            $('#barang-search').select2({
+                placeholder: "-- Cari Nama atau Kode Barang --",
+                ajax: {
+                    url: '{{ route('barang.search') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return { term: params.term };
+                    },
+                    processResults: function (data) {
+                        return { results: data };
+                    },
+                    cache: true
+                },
                 @unlessrole('admin')
                 disabled: true
                 @endunlessrole
             });
-            
-            const allProducts = @json($barangs->keyBy('id'));
+
             const oldItems = @json(old('items'));
             const cartTableBody = $('#cart-table tbody');
             const grandTotalEl = $('#grand-total');
@@ -224,12 +226,9 @@
             }
 
             $('#barang-search').on('select2:select', function (e) {
-                const selectedOption = $(e.params.data.element);
-                const barangId = selectedOption.val();
-                const nama = selectedOption.data('nama');
-                const harga = parseFloat(selectedOption.data('harga'));
-                const stok = parseInt(selectedOption.data('stok'));
-                addItemToCart(barangId, nama, harga, stok, 1);
+                const data = e.params.data.data;
+                const barangId = e.params.data.id;
+                addItemToCart(barangId, data.nama, data.harga, data.stok, 1);
                 $(this).val(null).trigger('change');
             });
 
@@ -263,17 +262,22 @@
                 if (oldItems && oldItems.length > 0) {
                     cartTableBody.empty();
                     cartItems = {};
+                    
+                    const existingProducts = @json($transaksi->details->mapWithKeys(function ($detail) {
+                        return [$detail->barang_id => [
+                            'nama_barang' => $detail->barang->nama_barang,
+                            'stok' => $detail->barang->stok + $detail->jumlah
+                        ]];
+                    }));
+
                     oldItems.forEach(item => {
-                        const product = allProducts[item.barang_id];
+                        const product = existingProducts[item.barang_id];
                         if (product) {
-                            const originalDetail = @json($transaksi->details->keyBy('barang_id'));
-                            let currentStok = product.stok;
-                            if(originalDetail[item.barang_id]) {
-                                currentStok += originalDetail[item.barang_id].jumlah;
-                            }
                             addItemToCart(
-                                product.id, product.nama_barang,
-                                parseFloat(item.harga_saat_transaksi), currentStok,
+                                item.barang_id,
+                                product.nama_barang,
+                                parseFloat(item.harga_saat_transaksi),
+                                product.stok,
                                 parseInt(item.jumlah)
                             );
                         }
@@ -344,6 +348,8 @@
                 });
                 grandTotalEl.text(formatRupiah(grandTotal));
                 totalHargaInput.val(grandTotal);
+                $('#total-jenis-barang').text(totalJenis);
+                $('#total-kuantitas-barang').text(totalKuantitas);
                 updateUangKembali();
             }
             
