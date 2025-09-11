@@ -12,23 +12,26 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('transaksi.index')" :active="request()->routeIs('transaksi.*')">
-                        {{ __('Transaksi') }}
-                    </x-nav-link>
-
-                    @role('admin')
+    
+                    @hasanyrole('admin|kasir')
+                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                            {{ __('Dashboard') }}
+                        </x-nav-link>
+                
+                        <x-nav-link :href="route('transaksi.index')" :active="request()->routeIs('transaksi.*')">
+                            {{ __('Transaksi') }}
+                        </x-nav-link>
+                
                         <x-nav-link :href="route('barang.index')" :active="request()->routeIs('barang.*')">
                             {{ __('Data Barang') }}
                         </x-nav-link>
-
+                    @endhasanyrole
+                    
+                    @role('admin')
                         <x-nav-link :href="route('kode-barang.index')" :active="request()->routeIs('kode-barang.*')">
                             {{ __('Kode Barang') }}
                         </x-nav-link>
-
+                
                         <x-nav-link :href="route('hutang-supplier.index')" :active="request()->routeIs('hutang-supplier.*')">
                             {{ __('Hutang Supplier') }}
                         </x-nav-link>

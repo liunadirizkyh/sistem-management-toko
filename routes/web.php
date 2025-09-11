@@ -25,23 +25,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:admin|kasir')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Transaksi yang bisa dilihat/dibuat oleh kasir
+        // Rute Transaksi (Lihat & Buat)
         Route::get('/transaksi/baru', [TransaksiController::class, 'create'])->name('transaksi.create');
         Route::post('/transaksi', [TransaksiController::class, 'store'])->name('transaksi.store');
         Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi.index');
         Route::get('/transaksi/{transaksi}', [TransaksiController::class, 'show'])->name('transaksi.show');
-
-        // Rute edit dipindahkan ke sini agar bisa diakses kasir
         Route::get('/transaksi/{transaksi}/edit', [TransaksiController::class, 'edit'])->name('transaksi.edit');
+
+        // Rute Barang (Hanya Lihat)
+        Route::get('/barang', [BarangController::class, 'index'])->name('barang.index');
+        Route::get('/barang/{barang}/edit', [BarangController::class, 'edit'])->name('barang.edit');
     });
 
     // --- Rute Khusus Admin ---
     Route::middleware('role:admin')->group(function () {
-        Route::resource('barang', BarangController::class);
         Route::resource('kode-barang', KodeBarangController::class);
         Route::resource('hutang-supplier', HutangSupplierController::class);
 
-        // Aksi update & hapus transaksi tetap HANYA untuk admin
+        // Aksi Buat, Update & Hapus Barang
+        Route::get('/barang/create', [BarangController::class, 'create'])->name('barang.create');
+        Route::post('/barang', [BarangController::class, 'store'])->name('barang.store');
+        Route::put('/barang/{barang}', [BarangController::class, 'update'])->name('barang.update');
+        Route::delete('/barang/{barang}', [BarangController::class, 'destroy'])->name('barang.destroy');
+
+        // Aksi Update & Hapus Transaksi
         Route::put('/transaksi/{transaksi}', [TransaksiController::class, 'update'])->name('transaksi.update');
         Route::delete('/transaksi/{transaksi}', [TransaksiController::class, 'destroy'])->name('transaksi.destroy');
     });
