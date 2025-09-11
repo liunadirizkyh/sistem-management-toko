@@ -87,9 +87,9 @@
 
                         </div>
 
-                        <div class="flex items-center justify-end mt-6 pt-4">
-                            <a href="{{ route('hutang-supplier.index') }}" class="text-gray-600 hover:text-gray-900 mr-4">Batal</a>
-                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        <div class="flex items-center justify-end mt-6 pt-4 space-x-2">
+                            <a href="{{ route('hutang-supplier.index') }}" class="hover:text-gray-900 text-gray-700 font-bold py-2 px-4 rounded-lg text-sm">Batal</a>
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm">
                                 Simpan Data
                             </button>
                         </div>

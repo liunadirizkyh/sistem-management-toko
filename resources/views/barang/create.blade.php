@@ -18,11 +18,11 @@
                     
                     @if ($errors->any())
                         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-                           <ul>
+                            <ul>
                                 @foreach($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
-                           </ul>
+                            </ul>
                         </div>
                     @endif
 
@@ -33,7 +33,8 @@
                             <div>
                                 <label for="kode_barang_id" class="block font-medium text-sm text-gray-700">Kode Barang</label>
                                 <select name="kode_barang_id" id="kode_barang_id" class="w-full block mt-1" required>
-                                    <option></option> @foreach($kodeBarangs as $kode)
+                                    <option></option>
+                                    @foreach($kodeBarangs as $kode)
                                         <option value="{{ $kode->id }}" data-harga="{{ $kode->harga_modal }}" {{ old('kode_barang_id') == $kode->id ? 'selected' : '' }}>
                                             {{ $kode->kode }}
                                         </option>
@@ -75,10 +76,10 @@
 
                         </div>
 
-                        <div class="flex items-center justify-end mt-6">
-                            <a href="{{ route('barang.index') }}" class="text-gray-600 hover:text-gray-900 mr-4">Batal</a>
-                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Simpan Barang
+                        <div class="flex items-center justify-end mt-6 pt-4 space-x-2">
+                            <a href="{{ route('barang.index') }}" class="hover:text-gray-900 text-gray-700 font-bold py-2 px-4 rounded-lg text-sm">Batal</a>
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm">
+                                Simpan
                             </button>
                         </div>
                     </form>
@@ -91,16 +92,12 @@
     @push('scripts')
     <script>
         $(document).ready(function() {
-            // Inisialisasi Select2 untuk dropdown Kode Barang
             $('#kode_barang_id').select2({
                 placeholder: "-- Pilih Kode Barang --"
             });
-
-            // Fungsi untuk memformat Harga Beli saat kode dipilih
             function updateHargaBeli() {
                 const selectedOption = $('#kode_barang_id').find('option:selected');
                 const harga = selectedOption.data('harga');
-
                 if (harga) {
                     const formattedHarga = parseInt(harga, 10).toLocaleString('id-ID');
                     $('#harga_beli').val('Rp ' + formattedHarga);
@@ -108,16 +105,10 @@
                     $('#harga_beli').val('');
                 }
             }
-
-            // Panggil fungsi saat halaman dimuat (untuk menangani 'old' value)
             updateHargaBeli();
-
-            // Event listener saat pilihan di dropdown berubah
             $('#kode_barang_id').on('change', function() {
                 updateHargaBeli();
             });
-
-            // Skrip untuk memformat input angka lainnya (stok & harga jual)
             $('.number-format').on('input', function() {
                 let hiddenInputId = $(this).attr('id').replace('_formatted', '');
                 let rawValue = $(this).val().replace(/[^0-9]/g, '');

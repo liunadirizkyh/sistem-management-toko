@@ -90,15 +90,15 @@
                             <form action="{{ route('hutang-supplier.destroy', $hutangSupplier->id) }}" method="POST" onsubmit="return confirm('Anda YAKIN ingin menghapus data hutang ini?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm">
                                     Hapus
                                 </button>
                             </form>
                         </div>
                         
-                        <div class="flex items-center">
-                            <a href="{{ route('hutang-supplier.index') }}" class="text-gray-600 hover:text-gray-900 mr-4">Batal</a>
-                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" form="update-form">
+                        <div class="flex items-center space-x-2">
+                            <a href="{{ route('hutang-supplier.index') }}" class="hover:text-gray-900 text-gray-700 font-bold py-2 px-4 rounded-lg text-sm">Batal</a>
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm" form="update-form">
                                 Update
                             </button>
                         </div>

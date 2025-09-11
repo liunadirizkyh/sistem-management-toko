@@ -18,7 +18,7 @@
                     
                     @if ($errors->any())
                         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-                           Terdapat kesalahan pada input Anda.
+                            Terdapat kesalahan pada input Anda.
                         </div>
                     @endif
 
@@ -39,9 +39,9 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-end mt-6 pt-4">
-                            <a href="{{ route('kode-barang.index') }}" class="text-gray-600 hover:text-gray-900 mr-4">Batal</a>
-                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        <div class="flex items-center justify-end mt-6 pt-4 space-x-2">
+                            <a href="{{ route('kode-barang.index') }}" class="hover:text-gray-900 text-gray-700 font-bold py-2 px-4 rounded-lg text-sm">Batal</a>
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm">
                                 Simpan Kode
                             </button>
                         </div>
@@ -57,7 +57,7 @@
         $(document).ready(function() {
             $('.number-format').on('input', function() {
                 let hiddenInputId = $(this).attr('id').replace('_formatted', '');
-                let rawValue = $(this).val().replace(/[^0-9]/g, '');
+                let rawValue = $(this).val().replace(/[^0-g]/g, '');
                 $(`#${hiddenInputId}`).val(rawValue);
                 if (rawValue) {
                     $(this).val(parseInt(rawValue, 10).toLocaleString('id-ID'));
