@@ -14,7 +14,9 @@ class BarangController extends Controller
         $search = $request->input('search');
         $perPage = $request->input('per_page', 10);
 
-        $query = Barang::with('kodeBarang')->latest();
+        $query = Barang::with('kodeBarang')
+            ->orderBy('lokasi_barang', 'asc')
+            ->orderBy('nama_barang', 'asc');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
