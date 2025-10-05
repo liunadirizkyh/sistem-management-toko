@@ -6,7 +6,12 @@
             </h2>
             
             @role('admin')
-            <div class="absolute top-0 right-0 h-full flex items-center">
+            <div class="absolute top-0 right-0 h-full flex items-center space-x-2">
+                <button type="button" data-url="{{ route('barang.print', ['search' => request('search')]) }}" class="print-data-btn flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 transition shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Print Data
+                </button>
+
                 <a href="{{ route('barang.create') }}" 
                     class="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 transition shadow-sm">
                     + Tambah Barang
@@ -107,4 +112,36 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        $(document).ready(function() {
+            $('.print-data-btn').on('click', function(e) {
+                e.preventDefault();
+                const url = $(this).data('url');
+
+                $('iframe[name="print-frame"]').remove();
+
+                const iframe = $('<iframe>', {
+                    name: 'print-frame',
+                    src: url,
+                    style: 'display:none;'
+                }).appendTo('body');
+
+                iframe.on('load', function() {
+                    try {
+                        this.contentWindow.focus();
+                        this.contentWindow.print();
+                    } catch (e) {
+                        console.error("Gagal melakukan print:", e);
+                        alert("Gagal membuka dialog cetak. Pastikan browser Anda tidak memblokir popup.");
+                    }
+                    
+                    setTimeout(() => $(this).remove(), 1000);
+                });
+            });
+        });
+    </script>
+    @endpush
+
 </x-app-layout>

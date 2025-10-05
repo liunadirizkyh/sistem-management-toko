@@ -65,6 +65,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/barang', [BarangController::class, 'store'])->name('barang.store');
         Route::put('/barang/{barang}', [BarangController::class, 'update'])->name('barang.update');
         Route::delete('/barang/{barang}', [BarangController::class, 'destroy'])->name('barang.destroy');
+        Route::get('/barang/print', [BarangController::class, 'print'])->name('barang.print');
 
         // Aksi Update & Hapus Transaksi
         Route::put('/transaksi/{transaksi}', [TransaksiController::class, 'update'])->name('transaksi.update');

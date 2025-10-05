@@ -123,4 +123,27 @@ class BarangController extends Controller
 
         return response()->json($results);
     }
+
+    public function print(Request $request)
+    {
+        $search = $request->input('search');
+
+        $query = Barang::with('kodeBarang')
+            ->orderBy('lokasi_barang', 'asc')
+            ->orderBy('nama_barang', 'asc');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_barang', 'like', "%{$search}%")
+                    ->orWhere('lokasi_barang', 'like', "%{$search}%")
+                    ->orWhereHas('kodeBarang', function ($subQuery) use ($search) {
+                        $subQuery->where('kode', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $barangs = $query->get();
+
+        return view('barang.print', compact('barangs'));
+    }
 }
