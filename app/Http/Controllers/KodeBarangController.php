@@ -15,7 +15,8 @@ class KodeBarangController extends Controller
         $search = $request->input('search');
         $perPage = $request->input('per_page', 10);
 
-        $query = KodeBarang::latest();
+        $query = KodeBarang::latest()
+            ->orderBy('kode', 'asc');
 
         if ($search) {
             $query->where('kode', 'like', "%{$search}%");
