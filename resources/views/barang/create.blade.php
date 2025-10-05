@@ -66,6 +66,12 @@
                                 <input type="text" name="satuan" id="satuan" value="{{ old('satuan') }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
                                 @error('satuan')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
+
+                            <div>
+                                <label for="lokasi_barang" class="block font-medium text-sm text-gray-700">Lokasi Barang (Opsional)</label>
+                                <input type="text" name="lokasi_barang" id="lokasi_barang" value="{{ old('lokasi_barang') }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" placeholder="Contoh: Rak A1">
+                                @error('lokasi_barang')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                            </div>
                             
                             <div>
                                 <label for="stok_formatted" class="block font-medium text-sm text-gray-700">Stok Awal</label>

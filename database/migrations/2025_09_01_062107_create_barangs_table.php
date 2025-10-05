@@ -13,17 +13,14 @@ return new class extends Migration
     {
         Schema::create('barangs', function (Blueprint $table) {
             $table->id();
-
-            // Kolom foreign key untuk relasi ke tabel kode_barangs
             $table->foreignId('kode_barang_id')->nullable()->constrained('kode_barangs');
-
             $table->string('nama_barang');
             $table->string('satuan');
-
+            $table->string('lokasi_barang')->nullable();
             $table->unsignedBigInteger('harga_jual');
             $table->integer('stok')->default(0);
             $table->timestamps();
-            $table->softDeletes(); // Langsung tambahkan soft delete di sini
+            $table->softDeletes();
         });
     }
 

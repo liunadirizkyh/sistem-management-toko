@@ -71,8 +71,9 @@
                         <table class="min-w-full bg-white table-fixed">
                             <thead class="bg-gray-200">
                                 <tr>
-                                    <th class="w-1/5 py-2 px-4 border-b text-left align-middle">Kode Barang</th>
+                                    <th class="w-1/6 py-2 px-4 border-b text-left align-middle">Kode Barang</th>
                                     <th class="w-1/4 py-2 px-4 border-b text-left align-middle">Nama Barang</th>
+                                    <th class="w-1/12 py-2 px-4 border-b text-center align-middle">Lokasi</th>
                                     <th class="w-1/12 py-2 px-4 border-b text-center align-middle">Satuan</th>
                                     <th class="w-1/12 py-2 px-4 border-b text-center align-middle">Stok</th>
                                     <th class="w-1/6 py-2 px-4 border-b text-right align-middle">Harga Beli</th>
@@ -84,6 +85,7 @@
                                     <tr class="hover:bg-gray-100 cursor-pointer" onclick="window.location='{{ route('barang.edit', $barang->id) }}'">
                                         <td class="py-2 px-4 border-b align-middle">{{ optional($barang->kodeBarang)->kode ?? '-' }}</td>
                                         <td class="py-2 px-4 border-b align-middle font-bold">{{ $barang->nama_barang }}</td>
+                                        <td class="py-2 px-4 border-b text-center align-middle">{{ $barang->lokasi_barang ?? '-' }}</td>
                                         <td class="py-2 px-4 border-b text-center align-middle">{{ $barang->satuan }}</td>
                                         <td class="py-2 px-4 border-b text-center align-middle font-bold">{{ $barang->stok }}</td>
                                         <td class="py-2 px-4 border-b text-right align-middle">Rp {{ number_format(optional($barang->kodeBarang)->harga_modal, 0, ',', '.') }}</td>
@@ -91,7 +93,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-4 text-gray-500">Tidak ada barang yang cocok dengan pencarian Anda.</td>
+                                        <td colspan="7" class="text-center py-4 text-gray-500">Tidak ada barang yang cocok.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

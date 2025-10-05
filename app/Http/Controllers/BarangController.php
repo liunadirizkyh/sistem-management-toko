@@ -14,13 +14,12 @@ class BarangController extends Controller
         $search = $request->input('search');
         $perPage = $request->input('per_page', 10);
 
-        // Sertakan relasi 'kodeBarang' untuk efisiensi query
         $query = Barang::with('kodeBarang')->latest();
 
         if ($search) {
-            // Cari berdasarkan nama barang ATAU kode dari tabel relasi
             $query->where(function ($q) use ($search) {
                 $q->where('nama_barang', 'like', "%{$search}%")
+                    ->orWhere('lokasi_barang', 'like', "%{$search}%")
                     ->orWhereHas('kodeBarang', function ($subQuery) use ($search) {
                         $subQuery->where('kode', 'like', "%{$search}%");
                     });
@@ -48,6 +47,7 @@ class BarangController extends Controller
             'kode_barang_id' => 'required|exists:kode_barangs,id',
             'nama_barang' => 'required|string|max:255',
             'satuan' => 'required|string|max:20',
+            'lokasi_barang' => 'nullable|string|max:255',
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'required|integer|min:0',
         ]);
@@ -70,6 +70,7 @@ class BarangController extends Controller
             'kode_barang_id' => 'required|exists:kode_barangs,id',
             'nama_barang' => 'required|string|max:255',
             'satuan' => 'required|string|max:20',
+            'lokasi_barang' => 'nullable|string|max:255',
             'harga_jual' => 'required|numeric|min:0',
             'stok' => 'required|integer|min:0',
         ]);
