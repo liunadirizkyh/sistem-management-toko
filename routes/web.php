@@ -6,6 +6,7 @@ use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HutangSupplierController;
 use App\Http\Controllers\KodeBarangController;
+use App\Http\Controllers\PiutangController;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -70,6 +71,11 @@ Route::middleware(['auth'])->group(function () {
         // Aksi Update & Hapus Transaksi
         Route::put('/transaksi/{transaksi}', [TransaksiController::class, 'update'])->name('transaksi.update');
         Route::delete('/transaksi/{transaksi}', [TransaksiController::class, 'destroy'])->name('transaksi.destroy');
+
+        Route::get('/piutang', [PiutangController::class, 'index'])->name('piutang.index');
+        Route::get('/piutang/create', [PiutangController::class, 'create'])->name('piutang.create');
+        Route::post('/piutang', [PiutangController::class, 'store'])->name('piutang.store');
+        Route::get('/piutang/{pelanggan}', [PiutangController::class, 'show'])->name('piutang.show');
     });
 });
 

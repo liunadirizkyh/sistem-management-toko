@@ -28,6 +28,9 @@
                         <x-nav-link :href="route('hutang-supplier.index')" :active="request()->routeIs('hutang-supplier.*')">
                             {{ __('Hutang Supplier') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('piutang.index')" :active="request()->routeIs('piutang.*')">
+                            {{ __('Piutang Pelanggan') }}
+                        </x-nav-link>
                     @endrole
                 </div>
             </div>
