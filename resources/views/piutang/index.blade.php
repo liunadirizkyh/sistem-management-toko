@@ -71,13 +71,18 @@
                                 <tr>
                                     <th class="py-2 px-4 border-b text-left">Nama Pelanggan</th>
                                     <th class="py-2 px-4 border-b text-right w-1/3">Sisa Hutang / Deposit</th>
+                                    @role('admin')
+                                    <th class="py-2 px-4 border-b text-center w-32">Aksi</th>
+                                    @endrole
                                 </tr>
                             </thead>
                             <tbody class="text-sm">
                                 @forelse ($pelanggans as $pelanggan)
-                                    <tr class="hover:bg-gray-100 cursor-pointer" onclick="window.location='{{ route('piutang.show', $pelanggan) }}'">
-                                        <td class="py-3 px-4 border-b align-middle font-semibold">{{ $pelanggan->nama_pelanggan }}</td>
-                                        <td class="py-3 px-4 border-b align-middle text-right font-semibold">
+                                    <tr>
+                                        <td class="py-3 px-4 border-b align-middle font-semibold cursor-pointer hover:text-blue-600" onclick="window.location='{{ route('piutang.show', $pelanggan) }}'">
+                                            {{ $pelanggan->nama_pelanggan }}
+                                        </td>
+                                        <td class="py-3 px-4 border-b align-middle text-right font-semibold cursor-pointer hover:text-blue-600" onclick="window.location='{{ route('piutang.show', $pelanggan) }}'">
                                             @if($pelanggan->saldo > 0)
                                                 <span class="text-red-600">Rp {{ number_format($pelanggan->saldo, 0, ',', '.') }} (Hutang)</span>
                                             @elseif($pelanggan->saldo < 0)
@@ -86,10 +91,19 @@
                                                 <span>Rp 0</span>
                                             @endif
                                         </td>
+                                        @role('admin')
+                                        <td class="py-3 px-4 border-b align-middle text-center">
+                                            <form action="{{ route('pelanggan.destroy', $pelanggan) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus pelanggan ini beserta seluruh riwayatnya?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-semibold">Hapus</button>
+                                            </form>
+                                        </td>
+                                        @endrole
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="2" class="text-center py-4 text-gray-500">Tidak ada data pelanggan.</td>
+                                        <td colspan="3" class="text-center py-4 text-gray-500">Tidak ada data pelanggan.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

@@ -76,6 +76,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/piutang/create', [PiutangController::class, 'create'])->name('piutang.create');
         Route::post('/piutang', [PiutangController::class, 'store'])->name('piutang.store');
         Route::get('/piutang/{pelanggan}', [PiutangController::class, 'show'])->name('piutang.show');
+
+        Route::get('/piutang/{piutang}/edit', [PiutangController::class, 'edit'])->name('piutang.edit');
+        Route::put('/piutang/{piutang}', [PiutangController::class, 'update'])->name('piutang.update');
+        Route::delete('/piutang/{piutang}', [PiutangController::class, 'destroy'])->name('piutang.destroy');
+        Route::delete('/pelanggan/{pelanggan}', [PiutangController::class, 'destroyPelanggan'])->name('pelanggan.destroy');
     });
 });
 

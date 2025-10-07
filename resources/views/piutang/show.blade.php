@@ -28,6 +28,7 @@
                                     <th class="py-2 px-4 border-b text-left">Deskripsi</th>
                                     <th class="py-2 px-4 border-b text-right">Pengambilan (Debit)</th>
                                     <th class="py-2 px-4 border-b text-right">Pembayaran (Kredit)</th>
+                                    @role('admin')<th class="py-2 px-4 border-b text-center">Aksi</th>@endrole
                                 </tr>
                             </thead>
                             <tbody class="text-sm">
@@ -36,15 +37,23 @@
                                         <td class="py-2 px-4 border-b">{{ \Carbon\Carbon::parse($piutang->tanggal)->format('d M Y') }}</td>
                                         <td class="py-2 px-4 border-b">{{ $piutang->deskripsi }}</td>
                                         <td class="py-2 px-4 border-b text-right font-mono text-red-600">
-                                            @if($piutang->tipe == 'pengambilan')
-                                                Rp {{ number_format($piutang->jumlah, 0, ',', '.') }}
-                                            @else - @endif
+                                            @if($piutang->tipe == 'pengambilan') Rp {{ number_format($piutang->jumlah, 0, ',', '.') }} @else - @endif
                                         </td>
                                         <td class="py-2 px-4 border-b text-right font-mono text-green-600">
-                                            @if($piutang->tipe == 'pembayaran')
-                                                Rp {{ number_format($piutang->jumlah, 0, ',', '.') }}
-                                            @else - @endif
+                                            @if($piutang->tipe == 'pembayaran') Rp {{ number_format($piutang->jumlah, 0, ',', '.') }} @else - @endif
                                         </td>
+                                        @role('admin')
+                                        <td class="py-2 px-4 border-b text-center">
+                                            <div class="flex items-center justify-center space-x-3">
+                                                <a href="{{ route('piutang.edit', $piutang) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                                <form action="{{ route('piutang.destroy', $piutang) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus catatan ini? Saldo pelanggan akan dihitung ulang.');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                        @endrole
                                     </tr>
                                 @endforeach
                             </tbody>

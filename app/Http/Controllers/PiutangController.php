@@ -88,4 +88,72 @@ class PiutangController extends Controller
         $piutangs = $pelanggan->piutangs()->paginate(20);
         return view('piutang.show', compact('pelanggan', 'piutangs'));
     }
+
+    public function edit(Piutang $piutang)
+    {
+        $piutang->load('pelanggan');
+        return view('piutang.edit', compact('piutang'));
+    }
+
+    public function update(Request $request, Piutang $piutang)
+    {
+        $validated = $request->validate([
+            'tanggal' => 'required|date',
+            'tipe' => 'required|in:pengambilan,pembayaran',
+            'deskripsi' => 'required|string',
+            'jumlah' => 'required|numeric|min:1',
+        ]);
+
+        $pelanggan = $piutang->pelanggan;
+
+        try {
+            DB::transaction(function () use ($validated, $piutang, $pelanggan) {
+                if ($piutang->tipe == 'pengambilan') {
+                    $pelanggan->decrement('saldo', $piutang->jumlah);
+                } else {
+                    $pelanggan->increment('saldo', $piutang->jumlah);
+                }
+
+                if ($validated['tipe'] == 'pengambilan') {
+                    $pelanggan->increment('saldo', $validated['jumlah']);
+                } else {
+                    $pelanggan->decrement('saldo', $validated['jumlah']);
+                }
+
+                $piutang->update($validated);
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
+        }
+
+        return redirect()->route('piutang.show', $pelanggan)->with('success', 'Transaksi piutang berhasil diperbarui.');
+    }
+
+    public function destroy(Piutang $piutang)
+    {
+        $pelanggan = $piutang->pelanggan;
+
+        try {
+            DB::transaction(function () use ($piutang, $pelanggan) {
+                if ($piutang->tipe == 'pengambilan') {
+                    $pelanggan->decrement('saldo', $piutang->jumlah);
+                } else {
+                    $pelanggan->increment('saldo', $piutang->jumlah);
+                }
+
+                $piutang->delete();
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Gagal menghapus transaksi: ' . $e->getMessage()]);
+        }
+
+        return redirect()->route('piutang.show', $pelanggan)->with('success', 'Transaksi piutang berhasil dihapus.');
+    }
+
+    public function destroyPelanggan(Pelanggan $pelanggan)
+    {
+        $pelanggan->delete();
+
+        return redirect()->route('piutang.index')->with('success', 'Data pelanggan berhasil dihapus.');
+    }
 }
