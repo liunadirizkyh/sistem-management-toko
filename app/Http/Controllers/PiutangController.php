@@ -46,13 +46,29 @@ class PiutangController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'pelanggan_id_existing' => 'required_without:pelanggan_id_new|nullable|exists:pelanggans,id',
-            'pelanggan_id_new' => 'required_without:pelanggan_id_existing|nullable|string|max:255|unique:pelanggans,nama_pelanggan',
+            'pelanggan_id_existing' => 'nullable|exists:pelanggans,id',
+            'pelanggan_id_new' => 'nullable|string|max:255|unique:pelanggans,nama_pelanggan',
             'tanggal' => 'required|date',
             'tipe' => 'required|in:pengambilan,pembayaran',
             'deskripsi' => 'required|string',
             'jumlah' => 'required|numeric|min:1',
+        ], [
+            'pelanggan_id_new.unique' => 'Nama pelanggan baru sudah ada di dalam daftar.'
         ]);
+
+        // Validasi kustom: Pastikan hanya salah satu dari dua field pelanggan yang diisi
+        if (!$request->filled('pelanggan_id_existing') && !$request->filled('pelanggan_id_new')) {
+            return back()
+                ->withInput()
+                ->withErrors(['pelanggan_id_existing' => 'Anda harus memilih pelanggan yang sudah ada atau menginput nama pelanggan baru.']);
+        }
+
+        if ($request->filled('pelanggan_id_existing') && $request->filled('pelanggan_id_new')) {
+            return back()
+                ->withInput()
+                ->withErrors(['pelanggan_id_existing' => 'Anda tidak bisa memilih pelanggan dan menginput pelanggan baru secara bersamaan.']);
+        }
+
 
         try {
             DB::transaction(function () use ($request) {

@@ -16,6 +16,16 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     
+                    @if ($errors->any())
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <form action="{{ route('piutang.store') }}" method="POST">
                         @csrf
                         <div class="space-y-4">
@@ -27,10 +37,14 @@
                                         <option value="{{ $pelanggan->id }}" {{ old('pelanggan_id_existing') == $pelanggan->id ? 'selected' : '' }}>{{ $pelanggan->nama_pelanggan }}</option>
                                     @endforeach
                                 </select>
+                                <!-- PENAMBAHAN: Tampilkan error di sini -->
+                                @error('pelanggan_id_existing')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
                                 <label for="pelanggan_id_new" class="block font-medium text-sm text-gray-700">Atau Input Nama Pelanggan Baru</label>
                                 <input type="text" name="pelanggan_id_new" id="pelanggan_id_new" value="{{ old('pelanggan_id_new') }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300">
+                                <!-- PENAMBAHAN: Tampilkan error di sini -->
+                                @error('pelanggan_id_new')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
                             <div>
                                 <label for="tanggal" class="block font-medium text-sm text-gray-700">Tanggal</label>
@@ -51,10 +65,11 @@
                                 <label for="jumlah_formatted" class="block font-medium text-sm text-gray-700">Jumlah (Rp)</label>
                                 <input type="text" id="jumlah_formatted" inputmode="numeric" class="number-format block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ old('jumlah') ? number_format(old('jumlah'), 0, ',', '.') : '' }}" required>
                                 <input type="hidden" name="jumlah" id="jumlah" value="{{ old('jumlah') }}">
+                                @error('jumlah')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             </div>
                         </div>
-                        <div class="flex items-center justify-end mt-6 pt-4 space-x-2">
-                            <a href="{{ route('piutang.index') }}" class=" hover:text-900 text-gray-700 font-bold py-2 px-4 rounded-lg text-sm">Batal</a>
+                        <div class="flex items-center justify-end mt-6 border-t pt-4 space-x-2">
+                            <a href="{{ route('piutang.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg text-sm">Batal</a>
                             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm">
                                 Simpan Transaksi
                             </button>
@@ -78,7 +93,7 @@
                     $(this).val('');
                 }
             });
-         });
+        });
     </script>
     @endpush
 </x-app-layout>
