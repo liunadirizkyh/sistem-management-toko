@@ -78,22 +78,28 @@
                             </thead>
                             <tbody class="text-sm">
                                 @forelse ($pelanggans as $pelanggan)
-                                    <tr>
-                                        <td class="py-3 px-4 border-b align-middle font-semibold cursor-pointer hover:text-blue-600" onclick="window.location='{{ route('piutang.show', $pelanggan) }}'">
+                                    <tr class="hover:bg-gray-100">
+                                        <td class="py-3 px-4 border-b align-middle font-semibold cursor-pointer" onclick="window.location='{{ route('piutang.show', $pelanggan) }}'">
                                             {{ $pelanggan->nama_pelanggan }}
                                         </td>
-                                        <td class="py-3 px-4 border-b align-middle text-right font-semibold cursor-pointer hover:text-blue-600" onclick="window.location='{{ route('piutang.show', $pelanggan) }}'">
+                                        <td class="py-3 px-4 border-b align-middle text-right font-semibold cursor-pointer" onclick="window.location='{{ route('piutang.show', $pelanggan) }}'">
                                             @if($pelanggan->saldo > 0)
-                                                <span class="text-red-600">Rp {{ number_format($pelanggan->saldo, 0, ',', '.') }} (Hutang)</span>
+                                                <span class="px-2 py-1 font-semibold text-xs rounded-full bg-red-100 text-red-800">
+                                                    Rp {{ number_format($pelanggan->saldo, 0, ',', '.') }}
+                                                </span>
                                             @elseif($pelanggan->saldo < 0)
-                                                <span class="text-green-600">Rp {{ number_format(abs($pelanggan->saldo), 0, ',', '.') }} (Deposit)</span>
+                                                <span class="px-2 py-1 font-semibold text-xs rounded-full bg-green-100 text-green-800">
+                                                    Rp {{ number_format(abs($pelanggan->saldo), 0, ',', '.') }}
+                                                </span>
                                             @else
-                                                <span>Rp 0</span>
+                                                <span class="px-2 py-1 font-semibold text-xs rounded-full bg-gray-200 text-gray-800">
+                                                    Rp 0
+                                                </span>
                                             @endif
                                         </td>
                                         @role('admin')
                                         <td class="py-3 px-4 border-b align-middle text-center">
-                                            <form action="{{ route('pelanggan.destroy', $pelanggan) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus pelanggan ini beserta seluruh riwayatnya?');">
+                                            <form action="{{ route('pelanggan.destroy', $pelanggan) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus pelanggan ini beserta seluruh riwayatnya?');" onclick="event.stopPropagation()">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-semibold">Hapus</button>

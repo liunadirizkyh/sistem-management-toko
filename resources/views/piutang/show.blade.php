@@ -3,7 +3,7 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             <a href="{{ route('piutang.index') }}" class="hover:underline">Piutang Pelanggan</a>
             <span class="mx-2 font-sans">&gt;</span>
-            <span>Detail: {{ $pelanggan->nama_pelanggan }}</span>
+            <span>{{ $pelanggan->nama_pelanggan }}</span>
         </h2>
     </x-slot>
     <div class="py-12">
@@ -28,12 +28,11 @@
                                     <th class="py-2 px-4 border-b text-left">Deskripsi</th>
                                     <th class="py-2 px-4 border-b text-right">Pengambilan (Debit)</th>
                                     <th class="py-2 px-4 border-b text-right">Pembayaran (Kredit)</th>
-                                    @role('admin')<th class="py-2 px-4 border-b text-center">Aksi</th>@endrole
                                 </tr>
                             </thead>
                             <tbody class="text-sm">
                                 @foreach($piutangs as $piutang)
-                                    <tr>
+                                    <tr class="hover:bg-gray-100 @role('admin') cursor-pointer @endrole" @role('admin') onclick="window.location='{{ route('piutang.edit', $piutang) }}'" @endrole>
                                         <td class="py-2 px-4 border-b">{{ \Carbon\Carbon::parse($piutang->tanggal)->format('d M Y') }}</td>
                                         <td class="py-2 px-4 border-b">{{ $piutang->deskripsi }}</td>
                                         <td class="py-2 px-4 border-b text-right font-mono text-red-600">
@@ -42,18 +41,6 @@
                                         <td class="py-2 px-4 border-b text-right font-mono text-green-600">
                                             @if($piutang->tipe == 'pembayaran') Rp {{ number_format($piutang->jumlah, 0, ',', '.') }} @else - @endif
                                         </td>
-                                        @role('admin')
-                                        <td class="py-2 px-4 border-b text-center">
-                                            <div class="flex items-center justify-center space-x-3">
-                                                <a href="{{ route('piutang.edit', $piutang) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
-                                                <form action="{{ route('piutang.destroy', $piutang) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus catatan ini? Saldo pelanggan akan dihitung ulang.');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                        @endrole
                                     </tr>
                                 @endforeach
                             </tbody>

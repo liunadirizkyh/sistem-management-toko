@@ -10,7 +10,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     
@@ -20,10 +20,10 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('piutang.update', $piutang) }}" method="POST">
+                    <form action="{{ route('piutang.update', $piutang) }}" method="POST" id="update-form">
                         @csrf
                         @method('PUT')
-                        <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block font-medium text-sm text-gray-700">Pelanggan</label>
                                 <input type="text" value="{{ $piutang->pelanggan->nama_pelanggan }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 bg-gray-100" readonly>
@@ -32,31 +32,44 @@
                                 <label for="tanggal" class="block font-medium text-sm text-gray-700">Tanggal</label>
                                 <input type="date" name="tanggal" id="tanggal" value="{{ old('tanggal', $piutang->tanggal) }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
                             </div>
-                            <div>
-                                <label class="block font-medium text-sm text-gray-700">Tipe Transaksi</label>
+                            <div class="md:col-span-2">
+                                <label for="tipe" class="block font-medium text-sm text-gray-700">Tipe Transaksi</label>
                                 <select name="tipe" id="tipe" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>
                                     <option value="pengambilan" {{ old('tipe', $piutang->tipe) == 'pengambilan' ? 'selected' : '' }}>Pengambilan Barang (Menambah Hutang)</option>
                                     <option value="pembayaran" {{ old('tipe', $piutang->tipe) == 'pembayaran' ? 'selected' : '' }}>Deposit / Pembayaran (Mengurangi Hutang)</option>
                                 </select>
                             </div>
-                            <div>
+                            <div class="md:col-span-2">
                                 <label for="deskripsi" class="block font-medium text-sm text-gray-700">Deskripsi</label>
                                 <textarea name="deskripsi" id="deskripsi" rows="3" class="block mt-1 w-full rounded-md shadow-sm border-gray-300" required>{{ old('deskripsi', $piutang->deskripsi) }}</textarea>
                             </div>
-                            <div>
+                            <div class="md:col-span-2">
                                 <label for="jumlah_formatted" class="block font-medium text-sm text-gray-700">Jumlah (Rp)</label>
                                 <input type="text" id="jumlah_formatted" inputmode="numeric" class="number-format block mt-1 w-full rounded-md shadow-sm border-gray-300" value="{{ number_format(old('jumlah', $piutang->jumlah), 0, ',', '.') }}" required>
                                 <input type="hidden" name="jumlah" id="jumlah" value="{{ old('jumlah', $piutang->jumlah) }}">
                             </div>
                         </div>
+                    </form>
 
-                        <div class="flex items-center justify-end mt-6 border-t pt-4 space-x-2">
-                            <a href="{{ route('piutang.show', $piutang->pelanggan) }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg text-sm">Batal</a>
-                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm">
+                    <div class="flex items-center justify-between mt-6 pt-4">
+                        <div>
+                            <form action="{{ route('piutang.destroy', $piutang) }}" method="POST" onsubmit="return confirm('Anda YAKIN ingin menghapus catatan ini? Saldo pelanggan akan dihitung ulang.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm">
+                                    Hapus
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <a href="{{ route('piutang.show', $piutang->pelanggan) }}" class="hover:text-gray-900 text-gray-700 font-bold py-2 px-4 rounded-lg text-sm">Batal</a>
+                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm" form="update-form">
                                 Update Transaksi
                             </button>
                         </div>
-                    </form>
+                    </div>
+
                 </div>
             </div>
         </div>
