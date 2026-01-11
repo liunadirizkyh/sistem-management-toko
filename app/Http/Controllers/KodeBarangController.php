@@ -93,10 +93,9 @@ class KodeBarangController extends Controller
      */
     public function destroy(KodeBarang $kodeBarang)
     {
-        // Proteksi: Cek apakah kode barang ini sudah terpakai di tabel 'barangs'
         if ($kodeBarang->barangs()->exists()) {
             return redirect()->route('kode-barang.index')
-                ->withErrors(['error' => 'Gagal! Kode "' . $kodeBarang->kode . '" tidak dapat dihapus karena sudah digunakan oleh barang lain.']);
+                ->withErrors(['error' => 'Gagal! Kode "' . $kodeBarang->kode . '" masih digunakan oleh barang aktif. Hapus barangnya terlebih dahulu di Manajemen Barang.']);
         }
 
         $kodeBarang->delete();
