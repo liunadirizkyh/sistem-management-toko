@@ -85,10 +85,10 @@ class BarangController extends Controller
 
     public function destroy(Barang $barang)
     {
-        if ($barang->details()->exists()) {
-            return redirect()->route('barang.index')
-                ->withErrors(['error' => 'Gagal! Barang "' . $barang->nama_barang . '" tidak dapat dihapus karena sudah memiliki riwayat transaksi.']);
-        }
+        // if ($barang->details()->exists()) {
+        //     return redirect()->route('barang.index')
+        //         ->withErrors(['error' => 'Gagal! Barang "' . $barang->nama_barang . '" tidak dapat dihapus karena sudah memiliki riwayat transaksi.']);
+        // }
 
         $barang->delete();
 

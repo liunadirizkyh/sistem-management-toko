@@ -70,7 +70,7 @@ class TransaksiController extends Controller
                     $data['uang_bayar'] = $request->total_harga;
                     $data['uang_kembali'] = 0;
                     $data['via_bank'] = $request->via_bank;
-                } else { // cash
+                } else {
                     if ($request->uang_bayar < $request->total_harga) {
                         throw new \Exception('Untuk metode cash, uang bayar tidak boleh kurang dari total harga.');
                     }
@@ -82,10 +82,16 @@ class TransaksiController extends Controller
                 $transaksi = Transaksi::create($data);
 
                 foreach ($request->items as $item) {
-                    $barang = Barang::find($item['barang_id']);
+                    $barang = Barang::withTrashed()->find($item['barang_id']);
+
+                    if (!$barang) {
+                        throw new \Exception('Barang tidak ditemukan.');
+                    }
+
                     if ($barang->stok < $item['jumlah']) {
                         throw new \Exception('Stok untuk barang ' . $barang->nama_barang . ' tidak mencukupi.');
                     }
+
                     DetailTransaksi::create([
                         'transaksi_id' => $transaksi->id,
                         'barang_id' => $item['barang_id'],
@@ -93,6 +99,7 @@ class TransaksiController extends Controller
                         'harga_satuan' => $item['harga_saat_transaksi'],
                         'subtotal' => $item['jumlah'] * $item['harga_saat_transaksi'],
                     ]);
+
                     $barang->decrement('stok', $item['jumlah']);
                 }
             });
@@ -105,19 +112,21 @@ class TransaksiController extends Controller
 
     public function show(Transaksi $transaksi)
     {
-        $transaksi->load('details.barang');
+        $transaksi->load(['details.barang' => function ($query) {
+            $query->withTrashed();
+        }]);
+
         return view('transaksi.show', compact('transaksi'));
     }
 
     public function edit(Transaksi $transaksi)
     {
-        $transaksi->load(['details' => function ($query) {
-            $query->with(['barang' => function ($subQuery) {
-                $subQuery->withTrashed();
-            }]);
+        $transaksi->load(['details.barang' => function ($query) {
+            $query->withTrashed();
         }]);
+        $barangs = Barang::orderBy('nama_barang')->get();
 
-        return view('transaksi.edit', compact('transaksi'));
+        return view('transaksi.edit', compact('transaksi', 'barangs'));
     }
 
     public function update(Request $request, Transaksi $transaksi)
@@ -125,7 +134,7 @@ class TransaksiController extends Controller
         $request->validate([
             'nama_pelanggan' => 'nullable|string|max:255',
             'items' => 'required|array|min:1',
-            'items.*.barang_id' => 'required|exists:barangs,id',
+            'items.*.barang_id' => 'required',
             'items.*.jumlah' => 'required|integer|min:1',
             'items.*.harga_saat_transaksi' => 'required|numeric|min:0',
             'total_harga' => 'required|numeric|min:0',
@@ -155,7 +164,7 @@ class TransaksiController extends Controller
                     $data['uang_bayar'] = $request->total_harga;
                     $data['uang_kembali'] = 0;
                     $data['via_bank'] = $request->via_bank;
-                } else { // cash
+                } else {
                     if ($request->uang_bayar < $request->total_harga) {
                         throw new \Exception('Untuk metode cash, uang bayar tidak boleh kurang dari total harga.');
                     }
@@ -167,10 +176,16 @@ class TransaksiController extends Controller
                 $transaksi->update($data);
 
                 foreach ($request->items as $item) {
-                    $barang = Barang::find($item['barang_id']);
+                    $barang = Barang::withTrashed()->find($item['barang_id']);
+
+                    if (!$barang) {
+                        throw new \Exception('Salah satu barang tidak ditemukan di database.');
+                    }
+
                     if ($barang->stok < $item['jumlah']) {
                         throw new \Exception('Stok untuk barang ' . $barang->nama_barang . ' tidak mencukupi.');
                     }
+
                     DetailTransaksi::create([
                         'transaksi_id' => $transaksi->id,
                         'barang_id' => $item['barang_id'],
@@ -178,6 +193,7 @@ class TransaksiController extends Controller
                         'harga_satuan' => $item['harga_saat_transaksi'],
                         'subtotal' => $item['jumlah'] * $item['harga_saat_transaksi'],
                     ]);
+
                     $barang->decrement('stok', $item['jumlah']);
                 }
             });
