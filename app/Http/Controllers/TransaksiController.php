@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TransaksiExport;
 use App\Models\Barang;
 use App\Models\Transaksi;
 use App\Models\DetailTransaksi;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransaksiController extends Controller
 {
@@ -219,5 +222,20 @@ class TransaksiController extends Controller
             return redirect()->back()->withErrors(['error' => 'Gagal menghapus transaksi: ' . $e->getMessage()]);
         }
         return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil dihapus dan stok telah dikembalikan.');
+    }
+
+    public function export(Request $request)
+    {
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $search = $request->input('search');
+
+        $fileName = 'Laporan_Transaksi_' . now()->format('Ymd_His') . '.xlsx';
+
+        // Panggilan statis ini hanya akan bekerja jika menggunakan Facade
+        return Excel::download(
+            new TransaksiExport($fromDate, $toDate, $search),
+            $fileName
+        );
     }
 }
