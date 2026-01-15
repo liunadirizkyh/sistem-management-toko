@@ -58,9 +58,9 @@ class TransaksiController extends Controller
             'via_bank' => 'required_if:metode_pembayaran,transfer|nullable|string|max:50',
         ]);
 
-        $transaksi = null;
         try {
-            DB::transaction(function () use ($request, &$transaksi) {
+            $transaksi = DB::transaction(function () use ($request) {
+
                 $data = [
                     'user_id' => Auth::id(),
                     'nama_pelanggan' => $request->nama_pelanggan,
@@ -82,7 +82,7 @@ class TransaksiController extends Controller
                     $data['via_bank'] = null;
                 }
 
-                $transaksi = Transaksi::create($data);
+                $transaksiBaru = Transaksi::create($data);
 
                 foreach ($request->items as $item) {
                     $barang = Barang::withTrashed()->find($item['barang_id']);
@@ -96,7 +96,7 @@ class TransaksiController extends Controller
                     }
 
                     DetailTransaksi::create([
-                        'transaksi_id' => $transaksi->id,
+                        'transaksi_id' => $transaksiBaru->id,
                         'barang_id' => $item['barang_id'],
                         'jumlah' => $item['jumlah'],
                         'harga_satuan' => $item['harga_saat_transaksi'],
@@ -105,12 +105,16 @@ class TransaksiController extends Controller
 
                     $barang->decrement('stok', $item['jumlah']);
                 }
+                return $transaksiBaru;
             });
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
         }
 
-        return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil disimpan!');
+        return redirect()->route('transaksi.index')->with([
+            'success' => 'Transaksi berhasil disimpan!',
+            'print_url' => route('transaksi.show', $transaksi->id)
+        ]);
     }
 
     public function show(Transaksi $transaksi)

@@ -181,4 +181,49 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        $(document).ready(function() {
+            @if(session('print_url'))
+                
+                Swal.fire({
+                    title: 'Transaksi Berhasil!',
+                    text: "Apakah Anda ingin mencetak nota sekarang?",
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: 'Ya, Cetak Nota',
+                    cancelButtonText: 'Tidak, Kembali',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const printUrl = "{{ session('print_url') }}";
+                        
+                        const iframe = $('<iframe>', {
+                            name: 'nota-frame-confirm',
+                            src: printUrl,
+                            style: 'display:none;'
+                        }).appendTo('body');
+
+                        iframe.on('load', function() {
+                            try {
+                                this.contentWindow.focus();
+                                this.contentWindow.print();
+                            } catch (e) {
+                                console.error("Gagal print:", e);
+                                alert("Gagal membuka jendela print.");
+                            }
+                            
+                            setTimeout(() => {
+                                iframe.remove();
+                            }, 1000);
+                        });
+                    }
+                });
+            @endif
+        });
+    </script>
+    @endpush
 </x-app-layout>
