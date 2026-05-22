@@ -1,8 +1,6 @@
 # Sumber Rezeki
 Sistem web manajemen toko dan kasir untuk operasional harian Toko Sumber Rezeki.
 
-**🚀 Live Demo:** [https://sumber-rezeki.page.gd/](https://sumber-rezeki.page.gd/)
-
 ## Tech Stack
 - **PHP & Laravel 12**
 - **MySQL & Eloquent** (Database & ORM)
