@@ -2,8 +2,6 @@
 
 A modern, web-based store management and cashier system designed for the daily operations of **Toko Sumber Rezeki**. Built with **Laravel 12**, **Tailwind CSS**, and **Alpine.js**, it offers a clean, intuitive, and efficient interface for managing inventory, transactions, and financial records.
 
-[🌐 Live Demo](https://sumber-rezeki.page.gd/)
-
 ## ✨ Key Features
 
 - **Secured Authentication**: Built-in login and profile management using Laravel Breeze.
