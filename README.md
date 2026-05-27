@@ -1,67 +1,92 @@
-# Sumber Rezeki
-Sistem web manajemen toko dan kasir untuk operasional harian Toko Sumber Rezeki.
+# 📄 Sumber Rezeki
 
-## Tech Stack
-- **PHP & Laravel 12**
-- **MySQL & Eloquent** (Database & ORM)
-- **Tailwind CSS & Alpine.js** (Frontend Styling & Interactivity)
-- **Spatie Permission** (Role-Based Access Control)
-- **Maatwebsite Excel** (Spreadsheet Export)
-- **Laravel Breeze** (Authentication)
+A modern, web-based store management and cashier system designed for the daily operations of **Toko Sumber Rezeki**. Built with **Laravel 12**, **Tailwind CSS**, and **Alpine.js**, it offers a clean, intuitive, and efficient interface for managing inventory, transactions, and financial records.
 
-## Fitur
-- 🔐 Login & Autentikasi yang aman
-- 👥 Manajemen Pengguna (Role Admin & Kasir)
-- 👤 Profil pengguna & update profil
-- 📦 CRUD Data Barang & Kategori/Kode Barang
-- 🛒 Transaksi Penjualan & Kasir
-- 📊 Dashboard & Statistik Laporan Penjualan (Export to Excel)
-- 💳 Manajemen Piutang Pelanggan
-- 🏢 Manajemen Hutang Supplier
+[🌐 Live Demo](https://sumber-rezeki.page.gd/)
 
-## Menu & Hak Akses (RBAC)
-| Menu / Route Path | Deskripsi | Akses Role |
+## ✨ Key Features
+
+- **Secured Authentication**: Built-in login and profile management using Laravel Breeze.
+- **Role-Based Access Control (RBAC)**: Separate permissions for Admins and Cashiers powered by Spatie Permission.
+- **Inventory & Category Management**: Seamless CRUD operations for goods, categories, and item codes.
+- **Transactions & Cashier System**: Fast and efficient checkout flows to record sales, purchases, and other transactions.
+- **Debt & Credit Tracking**: Comprehensive management of customer receivables (Piutang) and supplier payables (Hutang).
+- **Reports & Analytics**: An interactive dashboard showing summary statistics, with support for exporting sales history to Excel spreadsheets.
+
+## 🚀 Technologies Used
+
+- **Framework**: Laravel 12 (PHP)
+- **Database & ORM**: MySQL / SQLite (Eloquent ORM)
+- **Frontend & Styling**: Tailwind CSS, Alpine.js
+- **Access Control**: Spatie Laravel-Permission
+- **Exports**: Maatwebsite Laravel Excel
+- **Authentication**: Laravel Breeze
+
+## 🔐 Access Control & Permissions (RBAC)
+
+Below is the routing architecture and access permissions configured for each role:
+
+| Route Path | Description | Access Role |
 | :--- | :--- | :--- |
-| `/login` | Autentikasi masuk ke sistem | Semua (Guest) |
-| `/dashboard` | Ringkasan statistik & penjualan | Admin, Kasir |
-| `/profile` | Lihat dan ubah data profil | Admin, Kasir |
-| `/barang` | Modul inventori barang | Admin (Full CRUD), Kasir (Lihat saja) |
-| `/transaksi` | Catat & lihat data transaksi masuk/keluar | Admin, Kasir |
-| `/piutang` | Pencatatan piutang pelanggan | Admin |
-| `/hutang-supplier`| Pencatatan hutang kepada supplier | Admin |
-| `/kode-barang` | Pengaturan kategori/kode barang | Admin |
-| `/transaksi/export`| Export riwayat transaksi ke Excel | Admin, Kasir |
+| `/login` | Access authentication screen | Guest (All) |
+| `/dashboard` | View overview statistics & sales summaries | Admin, Cashier |
+| `/profile` | View and edit user profile settings | Admin, Cashier |
+| `/barang` | Manage item inventory | Admin (Full CRUD), Cashier (View Only) |
+| `/transaksi` | Record & view transaction logs (in/out) | Admin, Cashier |
+| `/piutang` | Monitor customer receivables / credit | Admin |
+| `/hutang-supplier`| Monitor supplier payables / debt | Admin |
+| `/kode-barang` | Manage category and item code settings | Admin |
+| `/transaksi/export`| Export transaction logs to Excel spreadsheets | Admin, Cashier |
 
-## Instalasi
+## 🛠️ Getting Started
 
-```bash
-# Clone & install dependensi
-git clone https://github.com/username/sumber-rezeki.git
-cd sumber-rezeki
-composer install
-npm install
+### Prerequisites
+Make sure you have PHP (>= 8.2), Composer, Node.js, and npm installed on your local machine.
 
-# Setup environment
-cp .env.example .env
-# Edit .env sesuai konfigurasi database jika tidak memakai SQLite default
+### Installation
 
-# Generate application key & siapkan database
-php artisan key:generate
-touch database/database.sqlite
-php artisan migrate --seed
+1. Clone the repository and navigate into the project directory:
+   ```bash
+   git clone https://github.com/liunadirizkyh/sistem-management-toko.git
+   cd sistem-management-toko
+   ```
 
-# Jalankan server lokal & aset bunlder (vite) bersamaan
-composer dev
-```
+2. Install the backend (Composer) and frontend (npm) dependencies:
+   ```bash
+   composer install
+   npm install
+   ```
 
-## Environment Variables (.env)
-Pastikan beberapa variabel penting berikut sudah sesuai di file `.env` Anda:
+3. Set up the environment configuration:
+   ```bash
+   cp .env.example .env
+   # Configure database settings in .env if not using the default SQLite database
+   ```
+
+4. Generate the application security key and initialize the database:
+   ```bash
+   php artisan key:generate
+   touch database/database.sqlite
+   php artisan migrate --seed
+   ```
+
+5. Start the development server (runs both the PHP server and Vite bundler):
+   ```bash
+   composer dev
+   ```
+
+6. Open [http://localhost:8000](http://localhost:8000) in your browser to see the application in action.
+
+## ⚙️ Environment Variables (`.env`)
+
+Ensure the following essential environment variables are properly configured in your `.env` file:
+
 ```env
 APP_NAME="Sumber Rezeki"
 APP_URL=http://localhost:8000
 
 DB_CONNECTION=sqlite
-# Jika menggunakan MySQL:
+# Alternatively, to use MySQL:
 # DB_CONNECTION=mysql
 # DB_HOST=127.0.0.1
 # DB_PORT=3306
@@ -70,3 +95,10 @@ DB_CONNECTION=sqlite
 # DB_PASSWORD=
 ```
 
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the issues page if you want to contribute.
+
+## 📝 License
+
+This project is privately owned and developed. All rights reserved.
